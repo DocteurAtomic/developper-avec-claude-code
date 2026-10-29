@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run pytest:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Read(./.env)"
+    ]
+  }
+}
