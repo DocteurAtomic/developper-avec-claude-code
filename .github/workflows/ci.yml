@@ -1,0 +1,23 @@
+# Runs the tests and the linter on every push to main, on every tag
+# and on every pull request.
+name: ci
+
+on:
+  push:
+    branches: [main]
+    tags: ["*"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install Python and the dependencies
+        run: uv sync
+      - name: Tests
+        run: uv run pytest -q
+      # Known lint warnings are reported without failing the build for now.
+      - name: Lint
+        run: uv run ruff check --exit-zero

@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Local settings and secrets
+.env
+
+# Claude Code worktrees
+.claude/worktrees/
+
+# Working copies of the database (the reference copy is data/pachaplan.sqlite)
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+/tmp/
