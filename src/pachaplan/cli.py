@@ -21,6 +21,14 @@ def month_arg(text):
     return text
 
 
+def day_arg(text):
+    """Argparse type for --date and --today: parse YYYY-MM-DD into a date."""
+    try:
+        return planning.parse_day(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid date {text!r}, expected YYYY-MM-DD") from None
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="pachaplan",
@@ -33,7 +41,7 @@ def build_parser():
     )
     parser.add_argument(
         "--today",
-        type=planning.parse_day,
+        type=day_arg,
         default=None,
         help="reference date YYYY-MM-DD (default: $PACHAPLAN_TODAY, then the current date)",
     )
@@ -44,7 +52,7 @@ def build_parser():
                    help="fill rate threshold, in percent")
 
     p = sub.add_parser("trainers", help="trainers teaching on a given day")
-    p.add_argument("--date", type=planning.parse_day, required=True, metavar="YYYY-MM-DD")
+    p.add_argument("--date", type=day_arg, required=True, metavar="YYYY-MM-DD")
 
     p = sub.add_parser("unpaid", help="invoices still unpaid N days after they were issued")
     p.add_argument("--days", type=int, required=True, metavar="N")

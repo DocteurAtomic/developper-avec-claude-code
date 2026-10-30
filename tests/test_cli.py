@@ -21,6 +21,21 @@ def test_cli_export_rejects_invalid_month(db_path, capsys, month):
     )
 
 
+@pytest.mark.parametrize("option,args", [
+    ("--date", ["trainers", "--date", "2026-11-31"]),
+    ("--today", ["--today", "2026-11-31", "sessions", "--below", "50"]),
+])
+def test_cli_rejects_invalid_date(db_path, capsys, option, args):
+    with pytest.raises(SystemExit) as exc:
+        main(["--db", str(db_path), *args])
+    assert exc.value.code == 2
+    err = capsys.readouterr().err
+    assert "Traceback" not in err
+    assert err.strip().splitlines()[-1].endswith(
+        f"error: argument {option}: invalid date '2026-11-31', expected YYYY-MM-DD"
+    )
+
+
 def test_cli_export_accepts_valid_month(db_path, capsys):
     assert main(["--db", str(db_path), "export", "--month", "2026-12"]) == 0
     assert capsys.readouterr().out.splitlines()[0].startswith("invoice_code")
