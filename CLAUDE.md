@@ -11,8 +11,8 @@ as `uv run pachaplan ...`; global options (`--db`, `--today`) go before the subc
   (40 passed, 7 skipped; seen on 2026-11-02 with an older suite: eight tests announced,
   seven passed, one skipped). Report the
   passed and skipped counts, never "all tests pass" alone.
-- Lint: `uv run ruff check`. It exits 1 today with 4 known errors (F401, two E501,
-  B006); CI runs it with `--exit-zero`. Do not fix them unless asked.
+- Lint: `uv run ruff check`. It exits 0 and CI fails the build on any lint error.
+  Fix new errors in the code; do not add `noqa` or ignore rules in `pyproject.toml`.
 
 ## Data
 

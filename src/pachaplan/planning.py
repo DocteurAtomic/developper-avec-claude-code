@@ -10,7 +10,6 @@ Four reports, one per command of the CLI:
 """
 
 import csv
-import os
 import sys
 from collections import defaultdict
 from datetime import date, timedelta
@@ -377,7 +376,9 @@ def assign_trainers(conn, day, include_unconfirmed=True):
         if s["is_in_house"]:
             in_house += 1
             if s["company_id"] is not None:
-                client = scalar(conn, f"SELECT name FROM company WHERE company_id = {s['company_id']}")
+                client = scalar(
+                    conn, f"SELECT name FROM company WHERE company_id = {s['company_id']}"
+                )
                 line["notes"].append(f"in-house: {client}")
             else:
                 line["notes"].append("in-house")
@@ -419,7 +420,9 @@ def print_trainer_day(result, out=sys.stdout):
         )
         for b in result["board"]
     ]
-    print_table(table, ["trainer", "session", "course", "day", "where", "home", "travel", "notes"], out)
+    print_table(
+        table, ["trainer", "session", "course", "day", "where", "home", "travel", "notes"], out
+    )
     print(
         f"\n{summary['day']}: {summary['sessions']} session(s), {summary['trainers']} trainer(s) "
         f"on duty, {summary['travelling']} travelling, {summary['in_house']} in-house.",
@@ -438,7 +441,7 @@ def print_trainer_day(result, out=sys.stdout):
 # ---------------------------------------------------------------------------
 
 
-def unpaid_invoices(conn, today, days, statuses=["I"]):
+def unpaid_invoices(conn, today, days, statuses=("I",)):
     """Invoices issued at least `days` days ago and not fully paid.
 
     The balance of an invoice is its gross amount, minus the payments
