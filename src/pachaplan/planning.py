@@ -267,6 +267,25 @@ def sessions_running_on(conn, iso, include_unconfirmed):
     )
 
 
+def new_board_line(s, day_number):
+    """The board line of session `s`, before the trainer checks fill it."""
+    return {
+        "session_id": s["session_id"],
+        "course": s["code"] or "",
+        "title": s["title"],
+        "day": f"{day_number}/{s['duration_days'] or 1}",
+        "location": s["location_name"] or "",
+        "city": s["city"] or "",
+        "room": s["room_name"] or "",
+        "status": s["status_code"],
+        "trainer_id": s["trainer_id"],
+        "trainer": "",
+        "home": "",
+        "travel": "",
+        "notes": [],
+    }
+
+
 def assign_trainers(conn, day, include_unconfirmed=True):
     """Build the trainer board for one day.
 
@@ -292,21 +311,7 @@ def assign_trainers(conn, day, include_unconfirmed=True):
         start = parse_day(s["start_date"])
         end = session_end(start, s["duration_days"])
         day_number = (day - start).days + 1
-        line = {
-            "session_id": s["session_id"],
-            "course": s["code"] or "",
-            "title": s["title"],
-            "day": f"{day_number}/{s['duration_days'] or 1}",
-            "location": s["location_name"] or "",
-            "city": s["city"] or "",
-            "room": s["room_name"] or "",
-            "status": s["status_code"],
-            "trainer_id": s["trainer_id"],
-            "trainer": "",
-            "home": "",
-            "travel": "",
-            "notes": [],
-        }
+        line = new_board_line(s, day_number)
 
         # The trainer of the session
         if s["trainer_id"] is None:
