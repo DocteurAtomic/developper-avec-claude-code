@@ -19,3 +19,6 @@ dist/
 *.sqlite-wal
 *.sqlite-shm
 /tmp/
+
+# Personal Claude Code instructions
+CLAUDE.local.md
