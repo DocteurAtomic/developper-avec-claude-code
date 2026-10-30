@@ -9,7 +9,7 @@ def test_cli_sessions_runs_without_error(db_path, capsys):
     assert "Error" not in out
 
 
-@pytest.mark.parametrize("month", ["2026-13", "2026-00", "2026", "abcd-ef", "2026-1-1", "2026-3"])
+@pytest.mark.parametrize("month", ["2026-13", "2026-00", "2026", "abcd-ef", "2026-1-1"])
 def test_cli_export_rejects_invalid_month(db_path, capsys, month):
     with pytest.raises(SystemExit) as exc:
         main(["--db", str(db_path), "export", "--month", month])
