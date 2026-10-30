@@ -303,6 +303,24 @@ def check_trainer_availability(s, trainer, start, iso, line, warnings):
         line["notes"].append("do not contact")
 
 
+def set_home_and_travel(conn, s, iso, line, warnings):
+    """Fill the home and travel of the line; True when the trainer travels."""
+    home = home_location(conn, s["trainer_id"], iso)
+    if home is None:
+        warnings.append(f"session {s['session_id']}: {line['trainer']} has no home location")
+        line["home"] = "?"
+        return False
+    line["home"] = home["city"] or home["name"]
+    if s["location_id"] == VIRTUAL_LOCATION_ID:
+        line["travel"] = "remote"
+        return False
+    if home["location_id"] != s["location_id"]:
+        line["travel"] = "yes"
+        return True
+    line["travel"] = "no"
+    return False
+
+
 def assign_trainers(conn, day, include_unconfirmed=True):
     """Build the trainer board for one day.
 
@@ -354,20 +372,8 @@ def assign_trainers(conn, day, include_unconfirmed=True):
 
         check_trainer_availability(s, trainer, start, iso, line, warnings)
 
-        # Home location and travel
-        home = home_location(conn, s["trainer_id"], iso)
-        if home is None:
-            warnings.append(f"session {s['session_id']}: {line['trainer']} has no home location")
-            line["home"] = "?"
-        else:
-            line["home"] = home["city"] or home["name"]
-            if s["location_id"] == VIRTUAL_LOCATION_ID:
-                line["travel"] = "remote"
-            elif home["location_id"] != s["location_id"]:
-                line["travel"] = "yes"
-                travelling += 1
-            else:
-                line["travel"] = "no"
+        if set_home_and_travel(conn, s, iso, line, warnings):
+            travelling += 1
 
         # Room: big enough, and not booked twice the same day
         enrolled = count_enrollments(conn, s["session_id"])
