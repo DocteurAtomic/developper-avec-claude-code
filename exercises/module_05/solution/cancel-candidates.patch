@@ -1,0 +1,218 @@
+diff --git a/README.md b/README.md
+index 2b7334e..e04a8a9 100644
+--- a/README.md
++++ b/README.md
+@@ -23,6 +23,7 @@ uv run pachaplan --help
+ 
+ ```bash
+ uv run pachaplan sessions --below 50          # sessions à venir remplies à moins de 50 %
++uv run pachaplan cancel-candidates            # sessions des 15 prochains jours sous 40 %, id;date;titre;inscrits;places
+ uv run pachaplan trainers --date 2026-11-18   # formateurs en session ce jour-là
+ uv run pachaplan unpaid --days 30             # factures émises il y a 30 jours ou plus et non soldées
+ uv run pachaplan export --month 2026-10       # lignes de facture du mois, en CSV
+@@ -74,6 +75,7 @@ uv run pachaplan --help
+ 
+ ```bash
+ uv run pachaplan sessions --below 50          # upcoming sessions filled under 50%
++uv run pachaplan cancel-candidates            # sessions of the next 15 days under 40%, id;date;title;enrolled;seats
+ uv run pachaplan trainers --date 2026-11-18   # trainers teaching on that day
+ uv run pachaplan unpaid --days 30             # invoices issued 30 days ago or more, still open
+ uv run pachaplan export --month 2026-10       # invoice lines of the month, as CSV
+diff --git a/src/pachaplan/cli.py b/src/pachaplan/cli.py
+index e251902..e16a747 100644
+--- a/src/pachaplan/cli.py
++++ b/src/pachaplan/cli.py
+@@ -31,7 +31,12 @@ def build_parser():
+     p.add_argument("--below", type=float, required=True, metavar="PCT",
+                    help="fill rate threshold, in percent")
+ 
+-    p = sub.add_parser("trainers", help="trainers teaching on a given day")
++    sub.add_parser(
++        "cancel-candidates",
++        help="upcoming sessions under 40%% in the next 15 days, semicolon-separated",
++    )
++
++    p = sub.add_parser("trainers",help="trainers teaching on a given day")
+     p.add_argument("--date", type=planning.parse_day, required=True, metavar="YYYY-MM-DD")
+ 
+     p = sub.add_parser("unpaid", help="invoices still unpaid N days after they were issued")
+@@ -58,6 +63,9 @@ def main(argv=None):
+         if args.command == "sessions":
+             rows = planning.low_fill_sessions(conn, today, args.below)
+             planning.print_low_fill(rows, args.below, today)
++        elif args.command == "cancel-candidates":
++            rows = planning.cancel_candidates(conn, today)
++            planning.print_cancel_candidates(rows, sys.stdout)
+         elif args.command == "trainers":
+             result = planning.assign_trainers(conn, args.date)
+             planning.print_trainer_day(result)
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index 194551c..50de2c1 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -1,8 +1,10 @@
+ """Planning reports for the PachaData training team.
+ 
+-Four reports, one per command of the CLI:
++Five reports, one per command of the CLI:
+ 
+ - low fill sessions: upcoming sessions filled under a percentage;
++- cancel candidates: sessions of the next 15 days filled under 40%, one
++  semicolon-separated line each;
+ - trainer day: which trainer teaches where on a given day, with the checks
+   the planning team asked for;
+ - unpaid invoices: invoices still open N days after they were issued;
+@@ -20,6 +22,12 @@ from .db import query, scalar
+ # Sessions starting within this many days are "upcoming" for the fill report.
+ HORIZON_DAYS = 30
+ 
++# Sessions starting within this many days, bounds included, are checked for cancellation.
++CANCEL_WINDOW_DAYS = 15
++
++# A session filled strictly under this percentage may have to be canceled.
++CANCEL_BELOW_PCT = 40
++
+ # Statuses of a session that is still going to happen.
+ ACTIVE_STATUSES = ("PLANNED", "OPEN", "CONFIRMED")
+ 
+@@ -209,6 +217,44 @@ def print_low_fill(rows, below, today, out=sys.stdout):
+     )
+ 
+ 
++# ---------------------------------------------------------------------------
++# Sessions that may have to be canceled
++# ---------------------------------------------------------------------------
++
++
++def cancel_candidates(conn, today):
++    """Sessions starting in the cancel window and filled strictly under CANCEL_BELOW_PCT.
++
++    Ordered by start date, then session id, as returned by upcoming_sessions.
++    """
++    result = []
++    for s in upcoming_sessions(conn, today, CANCEL_WINDOW_DAYS):
++        enrolled = count_enrollments(conn, s["session_id"])
++        capacity = s["max_attendees"]
++        rate = 100.0 * enrolled / capacity if capacity else 0.0
++        if rate < CANCEL_BELOW_PCT:
++            result.append(
++                {
++                    "session_id": s["session_id"],
++                    "start_date": s["start_date"],
++                    "title": s["title"],
++                    "enrolled": enrolled,
++                    "capacity": capacity,
++                }
++            )
++    return result
++
++
++def print_cancel_candidates(rows, out=sys.stdout):
++    """One line per session, id;date;title;enrolled;capacity, nothing else."""
++    for r in rows:
++        title = r["title"].replace(";", ",")
++        print(
++            f"{r['session_id']};{r['start_date']};{title};{r['enrolled']};{r['capacity']}",
++            file=out,
++        )
++
++
+ # ---------------------------------------------------------------------------
+ # Trainers on a given day
+ # ---------------------------------------------------------------------------
+diff --git a/tests/test_cancel.py b/tests/test_cancel.py
+new file mode 100644
+index 0000000..454439d
+--- /dev/null
++++ b/tests/test_cancel.py
+@@ -0,0 +1,90 @@
++import io
++
++from conftest import TODAY
++
++from pachaplan.cli import main
++from pachaplan.db import connect
++from pachaplan.planning import cancel_candidates, print_cancel_candidates
++
++
++def add_session(db_path, session_id, start_date, active=0, waiting=0, canceled=0):
++    """Add a session of course 1 (10 seats) with the given enrollments to the test copy."""
++    conn = connect(db_path, readonly=False)
++    conn.execute(
++        "INSERT INTO session VALUES (?, 1, 'FR', 1, 1, NULL, ?, 2, 1500, NULL, 'OPEN', 0, NULL,"
++        " '2026-06-01')",
++        (session_id, start_date),
++    )
++    kinds = [(None, 0)] * active + [(None, 1)] * waiting + [("2026-10-01", 0)] * canceled
++    for i, (cancellation_date, waiting_list) in enumerate(kinds):
++        conn.execute(
++            "INSERT INTO enrollment VALUES (?, ?, 1, '2026-09-01 10:00:00', ?, 0, 0, ?, NULL)",
++            (session_id * 100 + i, session_id, cancellation_date, waiting_list),
++        )
++    conn.commit()
++    conn.close()
++
++
++def candidate_ids(db_path):
++    conn = connect(db_path)
++    rows = cancel_candidates(conn, TODAY)
++    conn.close()
++    return [r["session_id"] for r in rows]
++
++
++def test_cancel_candidates_on_the_fixture(conn):
++    rows = cancel_candidates(conn, TODAY)
++    assert [r["session_id"] for r in rows] == [101]
++    assert rows[0]["enrolled"] == 2
++    assert rows[0]["capacity"] == 10
++
++
++def test_cancel_window_bounds_are_inclusive(db_path):
++    add_session(db_path, 201, "2026-11-01")
++    add_session(db_path, 202, "2026-11-02")
++    add_session(db_path, 203, "2026-11-17")
++    add_session(db_path, 204, "2026-11-18")
++    assert candidate_ids(db_path) == [202, 101, 203]
++
++
++def test_cancel_threshold_is_strict(db_path):
++    add_session(db_path, 201, "2026-11-05", active=4)
++    add_session(db_path, 202, "2026-11-05", active=3)
++    assert candidate_ids(db_path) == [202, 101]
++
++
++def test_cancel_ignores_waiting_list_and_canceled_enrollments(db_path):
++    add_session(db_path, 201, "2026-11-05", active=3, waiting=1, canceled=1)
++    conn = connect(db_path)
++    rows = cancel_candidates(conn, TODAY)
++    conn.close()
++    assert {r["session_id"]: r["enrolled"] for r in rows} == {201: 3, 101: 2}
++
++
++def test_cancel_sorted_by_date_then_id(db_path):
++    add_session(db_path, 302, "2026-11-08")
++    add_session(db_path, 301, "2026-11-08")
++    add_session(db_path, 303, "2026-11-04")
++    assert candidate_ids(db_path) == [303, 301, 302, 101]
++
++
++def test_print_cancel_candidates_format(conn):
++    out = io.StringIO()
++    print_cancel_candidates(cancel_candidates(conn, TODAY), out)
++    assert out.getvalue() == "101;2026-11-10;SQL: getting started;2;10\n"
++
++    out = io.StringIO()
++    row = {"session_id": 9, "start_date": "2026-11-03", "title": "A; B", "enrolled": 0,
++           "capacity": 4}
++    print_cancel_candidates([row], out)
++    assert out.getvalue() == "9;2026-11-03;A, B;0;4\n"
++
++
++def test_cli_cancel_candidates(db_path, capsys):
++    code = main(["--db", str(db_path), "--today", "2026-11-02", "cancel-candidates"])
++    assert code == 0
++    assert capsys.readouterr().out == "101;2026-11-10;SQL: getting started;2;10\n"
++
++    code = main(["--db", str(db_path), "--today", "2027-06-01", "cancel-candidates"])
++    assert code == 0
++    assert capsys.readouterr().out == ""
