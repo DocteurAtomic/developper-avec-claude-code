@@ -9,6 +9,15 @@ from . import __version__, planning
 from .db import connect, resolve_path
 
 
+def month_arg(text):
+    """Argparse type for --month: validate YYYY-MM, keep the text unchanged."""
+    try:
+        planning.parse_month(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid month {text!r}, expected YYYY-MM") from None
+    return text
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="pachaplan",
@@ -38,7 +47,7 @@ def build_parser():
     p.add_argument("--days", type=int, required=True, metavar="N")
 
     p = sub.add_parser("export", help="CSV export of the invoice lines of a month")
-    p.add_argument("--month", required=True, metavar="YYYY-MM")
+    p.add_argument("--month", type=month_arg, required=True, metavar="YYYY-MM")
     p.add_argument("-o", "--output", help="write the CSV to this file instead of stdout")
 
     return parser
