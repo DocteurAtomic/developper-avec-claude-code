@@ -242,22 +242,12 @@ def home_location(conn, trainer_id, day):
     return rows[0] if rows else None
 
 
-def assign_trainers(conn, day, include_unconfirmed=True):
-    """Build the trainer board for one day.
-
-    For every session running on `day`, find its trainer and check what the
-    planning team asked us to check: the trainer is still with us, can be
-    contacted, has a home location and no other session that day; the room
-    is big enough and not booked twice. Returns a dict with the board lines,
-    the warnings and a summary.
-    """
-    if isinstance(day, str):
-        day = parse_day(day)
-    iso = day.isoformat()
+def sessions_running_on(conn, iso, include_unconfirmed):
+    """The sessions running on day `iso`, with their course, room and location."""
     statuses = ACTIVE_STATUSES if include_unconfirmed else ("CONFIRMED",)
     status_list = ", ".join(f"'{s}'" for s in statuses)
 
-    sessions = query(
+    return query(
         conn,
         f"""
         SELECT s.session_id, s.start_date, s.duration_days, s.status_code, s.trainer_id,
@@ -275,6 +265,21 @@ def assign_trainers(conn, day, include_unconfirmed=True):
         ORDER BY l.city, s.start_date, s.session_id
         """,
     )
+
+
+def assign_trainers(conn, day, include_unconfirmed=True):
+    """Build the trainer board for one day.
+
+    For every session running on `day`, find its trainer and check what the
+    planning team asked us to check: the trainer is still with us, can be
+    contacted, has a home location and no other session that day; the room
+    is big enough and not booked twice. Returns a dict with the board lines,
+    the warnings and a summary.
+    """
+    if isinstance(day, str):
+        day = parse_day(day)
+    iso = day.isoformat()
+    sessions = sessions_running_on(conn, iso, include_unconfirmed)
 
     board = []
     warnings = []
