@@ -286,6 +286,24 @@ def new_board_line(s, day_number):
     }
 
 
+def find_trainer(conn, s, line, warnings):
+    """The trainer of session `s`, with their name on the line.
+
+    None, with a warning, when the session has no trainer or an unknown one.
+    """
+    if s["trainer_id"] is None:
+        warnings.append(f"session {s['session_id']}: no trainer assigned")
+        line["trainer"] = "(none)"
+        return None
+    trainer = trainer_identity(conn, s["trainer_id"])
+    if trainer is None:
+        warnings.append(f"session {s['session_id']}: unknown trainer {s['trainer_id']}")
+        line["trainer"] = f"#{s['trainer_id']}"
+        return None
+    line["trainer"] = full_name(trainer["first_name"], trainer["last_name"])
+    return trainer
+
+
 def check_trainer_availability(s, trainer, start, iso, line, warnings):
     """Is the trainer still with us for the whole session, and can we contact them?"""
     end = session_end(start, s["duration_days"])
@@ -386,19 +404,10 @@ def assign_trainers(conn, day, include_unconfirmed=True):
         day_number = (day - start).days + 1
         line = new_board_line(s, day_number)
 
-        # The trainer of the session
-        if s["trainer_id"] is None:
-            warnings.append(f"session {s['session_id']}: no trainer assigned")
-            line["trainer"] = "(none)"
-            board.append(line)
-            continue
-        trainer = trainer_identity(conn, s["trainer_id"])
+        trainer = find_trainer(conn, s, line, warnings)
         if trainer is None:
-            warnings.append(f"session {s['session_id']}: unknown trainer {s['trainer_id']}")
-            line["trainer"] = f"#{s['trainer_id']}"
             board.append(line)
             continue
-        line["trainer"] = full_name(trainer["first_name"], trainer["last_name"])
 
         # Not teaching another session the same day
         earlier = trainers_on_duty[s["trainer_id"]]
