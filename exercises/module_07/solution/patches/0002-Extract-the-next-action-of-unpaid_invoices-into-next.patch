@@ -1,0 +1,64 @@
+From 13d0baf68a3bede503cb319a9c0df03e2281f5b4 Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Sat, 31 Oct 2026 00:32:23 +0100
+Subject: [PATCH 2/8] Extract the next action of unpaid_invoices into
+ next_action
+
+next_action picks what to do from the reminder level and the days late.
+unpaid_invoices is down to 114 lines.
+
+---
+ src/pachaplan/planning.py | 29 ++++++++++++++++-------------
+ 1 file changed, 16 insertions(+), 13 deletions(-)
+
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index 22c5499..b5ba4bc 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -489,6 +489,21 @@ def print_trainer_day(result, out=sys.stdout):
+ # ---------------------------------------------------------------------------
+ 
+ 
++def next_action(level, days_late):
++    """What to do next, from the reminders already sent and the delay."""
++    if days_late <= 0:
++        return "wait (not due yet)"
++    if level == 0:
++        return "send first reminder"
++    if level == 1 and days_late > 15:
++        return "send second reminder"
++    if level == 2 and days_late > 30:
++        return "send formal notice"
++    if level >= 3 and days_late > 60:
++        return "hand over to collections"
++    return "wait"
++
++
+ def unpaid_invoices(conn, today, days, statuses=("I",)):
+     """Invoices issued at least `days` days ago and not fully paid.
+ 
+@@ -572,20 +587,8 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
+                 f"WHERE s.session_id = {inv['session_id']}",
+             )
+ 
+-        # What to do next, from the reminders already sent and the delay.
+         level = inv["reminder_level"] or 0
+-        if days_late <= 0:
+-            action = "wait (not due yet)"
+-        elif level == 0:
+-            action = "send first reminder"
+-        elif level == 1 and days_late > 15:
+-            action = "send second reminder"
+-        elif level == 2 and days_late > 30:
+-            action = "send formal notice"
+-        elif level >= 3 and days_late > 60:
+-            action = "hand over to collections"
+-        else:
+-            action = "wait"
++        action = next_action(level, days_late)
+ 
+         rows.append(
+             {
+-- 
+2.56.0
+

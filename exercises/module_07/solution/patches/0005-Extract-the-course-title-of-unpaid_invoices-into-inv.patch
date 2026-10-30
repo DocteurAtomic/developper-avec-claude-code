@@ -1,0 +1,52 @@
+From 2f24adde69f4952fa771220717d953f29f003cf8 Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Sat, 31 Oct 2026 00:33:51 +0100
+Subject: [PATCH 5/8] Extract the course title of unpaid_invoices into
+ invoice_course
+
+unpaid_invoices is down to 84 lines.
+
+---
+ src/pachaplan/planning.py | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index d227817..7adda3e 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -533,6 +533,17 @@ def invoice_trainees(conn, code):
+     return [full_name(t["first_name"], t["last_name"]) for t in trainees]
+ 
+ 
++def invoice_course(conn, session_id):
++    """The title of the course invoiced, or "" when the invoice has no session."""
++    if session_id is None:
++        return ""
++    return scalar(
++        conn,
++        f"SELECT c.title FROM session s JOIN course c ON c.course_id = s.course_id "
++        f"WHERE s.session_id = {session_id}",
++    )
++
++
+ def unpaid_invoices(conn, today, days, statuses=("I",)):
+     """Invoices issued at least `days` days ago and not fully paid.
+ 
+@@ -584,13 +595,7 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
+ 
+         names = invoice_trainees(conn, code)
+ 
+-        course = ""
+-        if inv["session_id"] is not None:
+-            course = scalar(
+-                conn,
+-                f"SELECT c.title FROM session s JOIN course c ON c.course_id = s.course_id "
+-                f"WHERE s.session_id = {inv['session_id']}",
+-            )
++        course = invoice_course(conn, inv["session_id"])
+ 
+         level = inv["reminder_level"] or 0
+         action = next_action(level, days_late)
+-- 
+2.56.0
+

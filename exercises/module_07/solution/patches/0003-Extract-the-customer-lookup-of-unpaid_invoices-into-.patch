@@ -1,0 +1,61 @@
+From d2a93e56683496ecf8f96f72af75f1e6a4f904ea Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Sat, 31 Oct 2026 00:32:53 +0100
+Subject: [PATCH 3/8] Extract the customer lookup of unpaid_invoices into
+ invoice_customer
+
+The company and contact queries are moved unchanged. unpaid_invoices is down
+to 102 lines.
+
+---
+ src/pachaplan/planning.py | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index b5ba4bc..76e6bce 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -504,6 +504,19 @@ def next_action(level, days_late):
+     return "wait"
+ 
+ 
++def invoice_customer(conn, inv):
++    """Who owes it: the company when there is one, otherwise the person."""
++    if inv["company_id"] is not None:
++        return scalar(conn, f"SELECT name FROM company WHERE company_id = {inv['company_id']}")
++    if inv["contact_id"] is not None:
++        person = query(
++            conn,
++            f"SELECT first_name, last_name FROM contact WHERE contact_id = {inv['contact_id']}",
++        )
++        return full_name(person[0]["first_name"], person[0]["last_name"]) if person else "?"
++    return "?"
++
++
+ def unpaid_invoices(conn, today, days, statuses=("I",)):
+     """Invoices issued at least `days` days ago and not fully paid.
+ 
+@@ -551,19 +564,7 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
+         days_late = (today - due).days
+         age = (today - parse_day(inv["invoice_date"])).days
+ 
+-        # Who owes it: the company when there is one, otherwise the person.
+-        if inv["company_id"] is not None:
+-            customer = scalar(
+-                conn, f"SELECT name FROM company WHERE company_id = {inv['company_id']}"
+-            )
+-        elif inv["contact_id"] is not None:
+-            person = query(
+-                conn,
+-                f"SELECT first_name, last_name FROM contact WHERE contact_id = {inv['contact_id']}",
+-            )
+-            customer = full_name(person[0]["first_name"], person[0]["last_name"]) if person else "?"
+-        else:
+-            customer = "?"
++        customer = invoice_customer(conn, inv)
+ 
+         # The trainees on the invoice, for the phone call.
+         trainees = query(
+-- 
+2.56.0
+

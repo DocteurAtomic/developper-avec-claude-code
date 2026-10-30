@@ -1,0 +1,57 @@
+From 22252cb7971094d6a1564deb0043abcc8b14c490 Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Sat, 31 Oct 2026 00:35:25 +0100
+Subject: [PATCH 8/8] Extract the invoice query of unpaid_invoices into
+ invoices_issued_by
+
+The query text is moved unchanged. unpaid_invoices is down to 32 lines.
+
+---
+ src/pachaplan/planning.py | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
+
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index 1f24147..6f33cad 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -594,16 +594,10 @@ def unpaid_row(conn, inv, today, paid, credited, balance):
+     }
+ 
+ 
+-def unpaid_invoices(conn, today, days, statuses=("I",)):
+-    """Invoices issued at least `days` days ago and not fully paid.
+-
+-    The balance of an invoice is its gross amount, minus the payments
+-    received, minus the credit notes issued against it. An invoice is late
+-    when its due date (or invoice date + payment terms) is past.
+-    """
+-    cutoff = today - timedelta(days=days)
++def invoices_issued_by(conn, cutoff, statuses):
++    """The documents of the given types issued on or before `cutoff`, oldest first."""
+     types = ", ".join(f"'{t}'" for t in statuses)
+-    invoices = query(
++    return query(
+         conn,
+         f"""
+         SELECT i.invoice_code, i.invoice_date, i.due_date, i.gross_amount, i.net_amount,
+@@ -616,6 +610,17 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
+         """,
+     )
+ 
++
++def unpaid_invoices(conn, today, days, statuses=("I",)):
++    """Invoices issued at least `days` days ago and not fully paid.
++
++    The balance of an invoice is its gross amount, minus the payments
++    received, minus the credit notes issued against it. An invoice is late
++    when its due date (or invoice date + payment terms) is past.
++    """
++    cutoff = today - timedelta(days=days)
++    invoices = invoices_issued_by(conn, cutoff, statuses)
++
+     rows = []
+     totals = {"count": 0, "gross": 0.0, "paid": 0.0, "credited": 0.0, "balance": 0.0}
+     by_customer = defaultdict(float)
+-- 
+2.56.0
+

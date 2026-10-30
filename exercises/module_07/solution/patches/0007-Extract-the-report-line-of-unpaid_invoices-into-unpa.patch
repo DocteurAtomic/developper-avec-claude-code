@@ -1,0 +1,116 @@
+From df2028d203570c13b27faa82d220cf35cf781085 Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Sat, 31 Oct 2026 00:34:55 +0100
+Subject: [PATCH 7/8] Extract the report line of unpaid_invoices into
+ unpaid_row
+
+unpaid_row computes the due date, age and delay, and gathers the customer,
+course, trainees and next action of an unpaid invoice. unpaid_invoices keeps
+the totals and is down to 44 lines.
+
+---
+ src/pachaplan/planning.py | 76 ++++++++++++++++++++-------------------
+ 1 file changed, 40 insertions(+), 36 deletions(-)
+
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index e5bebac..1f24147 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -557,6 +557,43 @@ def paid_and_credited(conn, code):
+     return paid, credited
+ 
+ 
++def unpaid_row(conn, inv, today, paid, credited, balance):
++    """The report line of an unpaid invoice: delay, customer, trainees and next action."""
++    code = inv["invoice_code"]
++    if inv["due_date"]:
++        due = parse_day(inv["due_date"])
++    else:
++        due = parse_day(inv["invoice_date"]) + timedelta(days=PAYMENT_TERMS_DAYS)
++    days_late = (today - due).days
++    age = (today - parse_day(inv["invoice_date"])).days
++
++    customer = invoice_customer(conn, inv)
++
++    names = invoice_trainees(conn, code)
++
++    course = invoice_course(conn, inv["session_id"])
++
++    level = inv["reminder_level"] or 0
++    action = next_action(level, days_late)
++
++    return {
++        "invoice_code": code,
++        "invoice_date": inv["invoice_date"],
++        "due_date": due.isoformat(),
++        "age": age,
++        "days_late": days_late,
++        "customer": customer,
++        "course": course,
++        "trainees": names,
++        "gross": inv["gross_amount"],
++        "paid": paid,
++        "credited": credited,
++        "balance": round(balance, 2),
++        "reminders": REMINDER_LABELS.get(level, f"level {level}"),
++        "action": action,
++    }
++
++
+ def unpaid_invoices(conn, today, days, statuses=("I",)):
+     """Invoices issued at least `days` days ago and not fully paid.
+ 
+@@ -589,47 +626,14 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
+         balance = inv["gross_amount"] + credited - paid
+         if balance <= SETTLED_TOLERANCE:
+             continue
+-
+-        if inv["due_date"]:
+-            due = parse_day(inv["due_date"])
+-        else:
+-            due = parse_day(inv["invoice_date"]) + timedelta(days=PAYMENT_TERMS_DAYS)
+-        days_late = (today - due).days
+-        age = (today - parse_day(inv["invoice_date"])).days
+-
+-        customer = invoice_customer(conn, inv)
+-
+-        names = invoice_trainees(conn, code)
+-
+-        course = invoice_course(conn, inv["session_id"])
+-
+-        level = inv["reminder_level"] or 0
+-        action = next_action(level, days_late)
+-
+-        rows.append(
+-            {
+-                "invoice_code": code,
+-                "invoice_date": inv["invoice_date"],
+-                "due_date": due.isoformat(),
+-                "age": age,
+-                "days_late": days_late,
+-                "customer": customer,
+-                "course": course,
+-                "trainees": names,
+-                "gross": inv["gross_amount"],
+-                "paid": paid,
+-                "credited": credited,
+-                "balance": round(balance, 2),
+-                "reminders": REMINDER_LABELS.get(level, f"level {level}"),
+-                "action": action,
+-            }
+-        )
++        row = unpaid_row(conn, inv, today, paid, credited, balance)
++        rows.append(row)
+         totals["count"] += 1
+         totals["gross"] += inv["gross_amount"]
+         totals["paid"] += paid
+         totals["credited"] += credited
+         totals["balance"] += balance
+-        by_customer[customer] += balance
++        by_customer[row["customer"]] += balance
+ 
+     rows.sort(key=lambda r: (-r["days_late"], r["invoice_code"]))
+     top = sorted(by_customer.items(), key=lambda kv: -kv[1])[:5]
+-- 
+2.56.0
+

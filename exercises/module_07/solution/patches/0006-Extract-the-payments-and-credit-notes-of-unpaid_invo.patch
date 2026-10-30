@@ -1,0 +1,55 @@
+From 4d8a762cbd557c45a9d356844bdf0a48b802fc3c Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Sat, 31 Oct 2026 00:34:19 +0100
+Subject: [PATCH 6/8] Extract the payments and credit notes of unpaid_invoices
+
+paid_and_credited runs the two sums unchanged. unpaid_invoices is down to
+77 lines.
+
+---
+ src/pachaplan/planning.py | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index 7adda3e..e5bebac 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -544,6 +544,19 @@ def invoice_course(conn, session_id):
+     )
+ 
+ 
++def paid_and_credited(conn, code):
++    """The payments received for an invoice, and the credit notes issued against it."""
++    paid = scalar(
++        conn, f"SELECT COALESCE(SUM(amount), 0) FROM payment WHERE invoice_code = '{code}'"
++    )
++    credited = scalar(
++        conn,
++        f"SELECT COALESCE(SUM(gross_amount), 0) FROM invoice "
++        f"WHERE document_type = 'C' AND original_invoice_code = '{code}'",
++    )
++    return paid, credited
++
++
+ def unpaid_invoices(conn, today, days, statuses=("I",)):
+     """Invoices issued at least `days` days ago and not fully paid.
+ 
+@@ -571,14 +584,7 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
+     by_customer = defaultdict(float)
+     for inv in invoices:
+         code = inv["invoice_code"]
+-        paid = scalar(
+-            conn, f"SELECT COALESCE(SUM(amount), 0) FROM payment WHERE invoice_code = '{code}'"
+-        )
+-        credited = scalar(
+-            conn,
+-            f"SELECT COALESCE(SUM(gross_amount), 0) FROM invoice "
+-            f"WHERE document_type = 'C' AND original_invoice_code = '{code}'",
+-        )
++        paid, credited = paid_and_credited(conn, code)
+         # Credit notes carry negative amounts.
+         balance = inv["gross_amount"] + credited - paid
+         if balance <= SETTLED_TOLERANCE:
+-- 
+2.56.0
+

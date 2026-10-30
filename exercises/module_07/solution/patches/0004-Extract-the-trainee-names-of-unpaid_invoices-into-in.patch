@@ -1,0 +1,64 @@
+From f4155ef5b5cc8b49d35646173d4a40a7df7ef07d Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Sat, 31 Oct 2026 00:33:24 +0100
+Subject: [PATCH 4/8] Extract the trainee names of unpaid_invoices into
+ invoice_trainees
+
+The query text is moved byte for byte, indentation included. unpaid_invoices
+is down to 90 lines.
+
+---
+ src/pachaplan/planning.py | 30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index 76e6bce..d227817 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -517,6 +517,22 @@ def invoice_customer(conn, inv):
+     return "?"
+ 
+ 
++def invoice_trainees(conn, code):
++    """The names of the trainees on the invoice, for the phone call."""
++    trainees = query(
++        conn,
++        f"""
++            SELECT DISTINCT c.first_name, c.last_name
++            FROM invoice_line l
++            JOIN enrollment e ON e.enrollment_id = l.enrollment_id
++            JOIN contact c ON c.contact_id = e.contact_id
++            WHERE l.invoice_code = '{code}'
++            ORDER BY c.last_name, c.first_name
++            """,
++    )
++    return [full_name(t["first_name"], t["last_name"]) for t in trainees]
++
++
+ def unpaid_invoices(conn, today, days, statuses=("I",)):
+     """Invoices issued at least `days` days ago and not fully paid.
+ 
+@@ -566,19 +582,7 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
+ 
+         customer = invoice_customer(conn, inv)
+ 
+-        # The trainees on the invoice, for the phone call.
+-        trainees = query(
+-            conn,
+-            f"""
+-            SELECT DISTINCT c.first_name, c.last_name
+-            FROM invoice_line l
+-            JOIN enrollment e ON e.enrollment_id = l.enrollment_id
+-            JOIN contact c ON c.contact_id = e.contact_id
+-            WHERE l.invoice_code = '{code}'
+-            ORDER BY c.last_name, c.first_name
+-            """,
+-        )
+-        names = [full_name(t["first_name"], t["last_name"]) for t in trainees]
++        names = invoice_trainees(conn, code)
+ 
+         course = ""
+         if inv["session_id"] is not None:
+-- 
+2.56.0
+
