@@ -304,6 +304,20 @@ def find_trainer(conn, s, line, warnings):
     return trainer
 
 
+def check_trainer_overlap(s, trainers_on_duty, line, warnings):
+    """Is the trainer teaching another session the same day?
+
+    `trainers_on_duty` maps a trainer to the sessions seen for them, and is updated.
+    """
+    earlier = trainers_on_duty[s["trainer_id"]]
+    if earlier:
+        warnings.append(
+            f"trainer {line['trainer']} assigned to sessions "
+            f"{', '.join(str(e) for e in earlier)} and {s['session_id']}"
+        )
+    earlier.append(s["session_id"])
+
+
 def check_trainer_availability(s, trainer, start, iso, line, warnings):
     """Is the trainer still with us for the whole session, and can we contact them?"""
     end = session_end(start, s["duration_days"])
@@ -409,15 +423,7 @@ def assign_trainers(conn, day, include_unconfirmed=True):
             board.append(line)
             continue
 
-        # Not teaching another session the same day
-        earlier = trainers_on_duty[s["trainer_id"]]
-        if earlier:
-            warnings.append(
-                f"trainer {line['trainer']} assigned to sessions "
-                f"{', '.join(str(e) for e in earlier)} and {s['session_id']}"
-            )
-        earlier.append(s["session_id"])
-
+        check_trainer_overlap(s, trainers_on_duty, line, warnings)
         check_trainer_availability(s, trainer, start, iso, line, warnings)
 
         if set_home_and_travel(conn, s, iso, line, warnings):
