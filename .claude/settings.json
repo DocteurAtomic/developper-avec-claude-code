@@ -8,5 +8,8 @@
       "Bash(git push:*)",
       "Read(./.env)"
     ]
+  },
+  "worktree": {
+    "baseRef": "head"
   }
 }
