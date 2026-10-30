@@ -251,8 +251,10 @@ def test_scenario_busy_day(scenario):
             "session 207: Hugo Fabre has no home location",
             "session 205: Bernard only starts on 2026-12-05",
             "session 202: unknown trainer 99",
+            "trainer Julie Lambert assigned to sessions 206 and 203",
             "room Date (Centre Pacha Lyon) booked by sessions 204 and 203",
             "session 201: no trainer assigned",
+            "trainer Paul Girard assigned to sessions 204 and 208",
             "session 208: 2 trainees for 1 seats in room Boyce",
         ],
         "summary": {
@@ -274,6 +276,7 @@ def test_scenario_busy_day_confirmed_only(scenario):
             "session 207: Hugo Fabre has no home location",
             "session 202: unknown trainer 99",
             "session 201: no trainer assigned",
+            "trainer Paul Girard assigned to sessions 204 and 208",
             "session 208: 2 trainees for 1 seats in room Boyce",
         ],
         "summary": {

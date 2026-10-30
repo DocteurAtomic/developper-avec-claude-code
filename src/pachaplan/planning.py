@@ -248,8 +248,9 @@ def assign_trainers(conn, day, include_unconfirmed=True):
 
     For every session running on `day`, find its trainer and check what the
     planning team asked us to check: the trainer is still with us, can be
-    contacted, has a home location; the room is big enough and not booked
-    twice. Returns a dict with the board lines, the warnings and a summary.
+    contacted, has a home location and no other session that day; the room
+    is big enough and not booked twice. Returns a dict with the board lines,
+    the warnings and a summary.
     """
     if isinstance(day, str):
         day = parse_day(day)
@@ -279,7 +280,7 @@ def assign_trainers(conn, day, include_unconfirmed=True):
     board = []
     warnings = []
     rooms_seen = {}
-    trainers_on_duty = defaultdict(int)
+    trainers_on_duty = defaultdict(list)
     travelling = 0
     in_house = 0
 
@@ -316,7 +317,15 @@ def assign_trainers(conn, day, include_unconfirmed=True):
             board.append(line)
             continue
         line["trainer"] = full_name(trainer["first_name"], trainer["last_name"])
-        trainers_on_duty[s["trainer_id"]] += 1
+
+        # Not teaching another session the same day
+        earlier = trainers_on_duty[s["trainer_id"]]
+        if earlier:
+            warnings.append(
+                f"trainer {line['trainer']} assigned to sessions "
+                f"{', '.join(str(e) for e in earlier)} and {s['session_id']}"
+            )
+        earlier.append(s["session_id"])
 
         # Still with us for the whole session?
         if trainer["arrival_date"] and trainer["arrival_date"] > iso:
