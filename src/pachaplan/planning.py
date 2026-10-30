@@ -286,6 +286,23 @@ def new_board_line(s, day_number):
     }
 
 
+def check_trainer_availability(s, trainer, start, iso, line, warnings):
+    """Is the trainer still with us for the whole session, and can we contact them?"""
+    end = session_end(start, s["duration_days"])
+    if trainer["arrival_date"] and trainer["arrival_date"] > iso:
+        warnings.append(
+            f"session {s['session_id']}: {line['trainer']} only starts on "
+            f"{trainer['arrival_date']}"
+        )
+    if trainer["departure_date"] and trainer["departure_date"] < end.isoformat():
+        warnings.append(
+            f"session {s['session_id']}: {line['trainer']} leaves on "
+            f"{trainer['departure_date']}, before the end of the session ({end})"
+        )
+    if trainer["do_not_contact"]:
+        line["notes"].append("do not contact")
+
+
 def assign_trainers(conn, day, include_unconfirmed=True):
     """Build the trainer board for one day.
 
@@ -309,7 +326,6 @@ def assign_trainers(conn, day, include_unconfirmed=True):
 
     for s in sessions:
         start = parse_day(s["start_date"])
-        end = session_end(start, s["duration_days"])
         day_number = (day - start).days + 1
         line = new_board_line(s, day_number)
 
@@ -336,19 +352,7 @@ def assign_trainers(conn, day, include_unconfirmed=True):
             )
         earlier.append(s["session_id"])
 
-        # Still with us for the whole session?
-        if trainer["arrival_date"] and trainer["arrival_date"] > iso:
-            warnings.append(
-                f"session {s['session_id']}: {line['trainer']} only starts on "
-                f"{trainer['arrival_date']}"
-            )
-        if trainer["departure_date"] and trainer["departure_date"] < end.isoformat():
-            warnings.append(
-                f"session {s['session_id']}: {line['trainer']} leaves on "
-                f"{trainer['departure_date']}, before the end of the session ({end})"
-            )
-        if trainer["do_not_contact"]:
-            line["notes"].append("do not contact")
+        check_trainer_availability(s, trainer, start, iso, line, warnings)
 
         # Home location and travel
         home = home_location(conn, s["trainer_id"], iso)
