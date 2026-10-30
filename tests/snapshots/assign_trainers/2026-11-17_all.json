@@ -1,0 +1,421 @@
+{
+  "board": [
+    {
+      "session_id": 17715,
+      "course": "SC-AZ-CL",
+      "title": "Monitoring and optimizing cloud costs",
+      "day": "2/2",
+      "location": "Centre Pacha Lyon",
+      "city": "Lyon",
+      "room": "Salle Chamberlin",
+      "status": "CONFIRMED",
+      "trainer_id": 37,
+      "trainer": "Antonella Morelli",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": [
+        "in-house: Mobile Annee SAS"
+      ]
+    },
+    {
+      "session_id": 17722,
+      "course": "SSAS-19",
+      "title": "SSAS 2019: tabular models",
+      "day": "2/4",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 5",
+      "status": "CONFIRMED",
+      "trainer_id": 79,
+      "trainer": "Arnaud Jaillant",
+      "home": "La Défense",
+      "travel": "remote",
+      "notes": []
+    },
+    {
+      "session_id": 17709,
+      "course": "LNX-ADM2",
+      "title": "Linux: system administration with systemd",
+      "day": "2/4",
+      "location": "Centre Pacha Défense",
+      "city": "La Défense",
+      "room": "SALLE 1",
+      "status": "CONFIRMED",
+      "trainer_id": 49,
+      "trainer": "Brian Prokopowicz",
+      "home": "Marseille",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17728,
+      "course": "PBI-ADM",
+      "title": "Power BI: administration and governance",
+      "day": "1/2",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "SALLE 3",
+      "status": "CONFIRMED",
+      "trainer_id": 11,
+      "trainer": "Charlyne Aktepe",
+      "home": "Lille",
+      "travel": "yes",
+      "notes": [
+        "4 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17712,
+      "course": "MY80-ADM",
+      "title": "MySQL 8.0: administration",
+      "day": "2/4",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "Salle Fermat",
+      "status": "CONFIRMED",
+      "trainer_id": 78,
+      "trainer": "Cherif Hachette",
+      "home": "Paris",
+      "travel": "no",
+      "notes": []
+    },
+    {
+      "session_id": 17721,
+      "course": "DBT-ELT",
+      "title": "dbt: transforming data in the warehouse",
+      "day": "2/2",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 4",
+      "status": "CONFIRMED",
+      "trainer_id": 44,
+      "trainer": "Fouade Becher",
+      "home": "Paris",
+      "travel": "remote",
+      "notes": []
+    },
+    {
+      "session_id": 17732,
+      "course": "SQL25-OPT",
+      "title": "SQL Server 2025: query tuning",
+      "day": "1/4",
+      "location": "Centre Pacha Grenoble",
+      "city": "Grenoble",
+      "room": "Salle Cerf",
+      "status": "OPEN",
+      "trainer_id": 56,
+      "trainer": "Francis Moutouvirin",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": [
+        "open",
+        "2 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17717,
+      "course": "PY-TEST",
+      "title": "Automated testing in Python with pytest",
+      "day": "2/2",
+      "location": "Centre Pacha Toulouse",
+      "city": "Toulouse",
+      "room": "Salle McCarthy",
+      "status": "CONFIRMED",
+      "trainer_id": 46,
+      "trainer": "Katty Moerkerke",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17719,
+      "course": "SQL25-TSQL",
+      "title": "SQL Server 2025: advanced T-SQL",
+      "day": "2/4",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 1",
+      "status": "CONFIRMED",
+      "trainer_id": 19,
+      "trainer": "Marc Vereme",
+      "home": "Paris",
+      "travel": "remote",
+      "notes": []
+    },
+    {
+      "session_id": 17733,
+      "course": "PG15-OPT",
+      "title": "PostgreSQL 15: query tuning",
+      "day": "1/3",
+      "location": "Spazio Affari Porta Nuova",
+      "city": "Torino",
+      "room": "Sala Backus",
+      "status": "CONFIRMED",
+      "trainer_id": 35,
+      "trainer": "Marco Giordano",
+      "home": "Milano",
+      "travel": "yes",
+      "notes": [
+        "3 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17723,
+      "course": "SQL22-ADM",
+      "title": "SQL Server 2022: administration",
+      "day": "2/5",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 6",
+      "status": "OPEN",
+      "trainer_id": 43,
+      "trainer": "Marianne Vallecalle",
+      "home": "Bruxelles",
+      "travel": "remote",
+      "notes": [
+        "open"
+      ]
+    },
+    {
+      "session_id": 17718,
+      "course": "SQL22-DIAG",
+      "title": "SQL Server 2022: performance diagnostics",
+      "day": "2/3",
+      "location": "Espace Affaires Seyon",
+      "city": "Neuchâtel",
+      "room": "Salle Chamberlin",
+      "status": "CONFIRMED",
+      "trainer_id": 65,
+      "trainer": "Marie-Line Schwartz",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17726,
+      "course": "ORA19-PLSQL",
+      "title": "Oracle 19c: PL/SQL",
+      "day": "1/4",
+      "location": "Centre Pacha Genève",
+      "city": "Genève",
+      "room": "SALLE 2",
+      "status": "CONFIRMED",
+      "trainer_id": 2,
+      "trainer": "Marine Guigue",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": [
+        "4 trainee(s)",
+        "Session complète, liste d'attente ouverte."
+      ]
+    },
+    {
+      "session_id": 17725,
+      "course": "MG-GENER",
+      "title": "Managing multiple generations",
+      "day": "1/1",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "SALLE 1",
+      "status": "OPEN",
+      "trainer_id": 34,
+      "trainer": "Matúš Alijaj",
+      "home": "Frankfurt am Main",
+      "travel": "yes",
+      "notes": [
+        "open",
+        "2 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17731,
+      "course": "MG-STRESS",
+      "title": "Preventing stress and psychosocial risks in the team",
+      "day": "1/2",
+      "location": "Centre Pacha Strasbourg",
+      "city": "Strasbourg",
+      "room": "Salle Hamilton",
+      "status": "CONFIRMED",
+      "trainer_id": 77,
+      "trainer": "Mirielle Fadda",
+      "home": "Paris",
+      "travel": "yes",
+      "notes": [
+        "6 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17734,
+      "course": "GP-KANBAN",
+      "title": "Kanban: visualizing and improving the flow of work",
+      "day": "1/2",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 2",
+      "status": "CONFIRMED",
+      "trainer_id": 13,
+      "trainer": "Nathalie Verdet",
+      "home": "Lyon",
+      "travel": "remote",
+      "notes": [
+        "3 trainee(s)",
+        "Machines virtuelles à préparer la veille."
+      ]
+    },
+    {
+      "session_id": 17710,
+      "course": "SQL25-TSQL",
+      "title": "SQL Server 2025: advanced T-SQL",
+      "day": "2/4",
+      "location": "Centre Pacha Défense",
+      "city": "La Défense",
+      "room": "Salle Drucker",
+      "status": "CONFIRMED",
+      "trainer_id": 61,
+      "trainer": "Nelly Valon",
+      "home": "Lyon",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17730,
+      "course": "GP-SM",
+      "title": "Scrum Master: facilitating and supporting",
+      "day": "1/2",
+      "location": "Centre Pacha Bordeaux",
+      "city": "Bordeaux",
+      "room": "Salle Turing",
+      "status": "OPEN",
+      "trainer_id": 70,
+      "trainer": "Olivier Combe",
+      "home": "Bruxelles",
+      "travel": "yes",
+      "notes": [
+        "in-house: Coopérative agricole Dauphiné",
+        "open",
+        "2 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17720,
+      "course": "WIN-22",
+      "title": "Windows Server 2022: administration",
+      "day": "2/4",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 3",
+      "status": "OPEN",
+      "trainer_id": 48,
+      "trainer": "Olivier Lombardi",
+      "home": "Paris",
+      "travel": "remote",
+      "notes": [
+        "open"
+      ]
+    },
+    {
+      "session_id": 17716,
+      "course": "SQL25-SEC",
+      "title": "SQL Server 2025: security",
+      "day": "2/3",
+      "location": "Centre Pacha Marseille",
+      "city": "Marseille",
+      "room": "Salle Deming",
+      "status": "CONFIRMED",
+      "trainer_id": 41,
+      "trainer": "Pierre Maquignon",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17714,
+      "course": "MG-PREMIER",
+      "title": "First management position",
+      "day": "2/3",
+      "location": "Centre Pacha Lyon",
+      "city": "Lyon",
+      "room": "Salle Stonebraker",
+      "status": "CONFIRMED",
+      "trainer_id": 10,
+      "trainer": "Rachel Billoire",
+      "home": "Bruxelles",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17727,
+      "course": "SQL22-PRISE",
+      "title": "SQL Server 2022: getting started",
+      "day": "1/3",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "SALLE 2",
+      "status": "CONFIRMED",
+      "trainer_id": 74,
+      "trainer": "Sonia Guillam",
+      "home": "Bordeaux",
+      "travel": "yes",
+      "notes": [
+        "4 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17713,
+      "course": "PG16-REPL",
+      "title": "PostgreSQL 16: replication and high availability",
+      "day": "2/3",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "Salle Pascal",
+      "status": "CONFIRMED",
+      "trainer_id": 52,
+      "trainer": "Taous Bouffety",
+      "home": "Marseille",
+      "travel": "yes",
+      "notes": [
+        "in-house: Felicite & Vilarinho"
+      ]
+    },
+    {
+      "session_id": 17729,
+      "course": "SQL22-OPT",
+      "title": "SQL Server 2022: query tuning",
+      "day": "1/4",
+      "location": "Centre Pacha Lyon",
+      "city": "Lyon",
+      "room": "Salle Thompson",
+      "status": "CONFIRMED",
+      "trainer_id": 39,
+      "trainer": "Ugur Hautot",
+      "home": "Paris",
+      "travel": "yes",
+      "notes": [
+        "7 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17724,
+      "course": "PG15-OPT",
+      "title": "PostgreSQL 15: query tuning",
+      "day": "2/3",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 7",
+      "status": "CONFIRMED",
+      "trainer_id": 54,
+      "trainer": "Xéna Beraud",
+      "home": "Grenoble",
+      "travel": "remote",
+      "notes": []
+    }
+  ],
+  "warnings": [],
+  "summary": {
+    "day": "2026-11-17",
+    "sessions": 25,
+    "trainers": 25,
+    "travelling": 17,
+    "in_house": 3
+  }
+}

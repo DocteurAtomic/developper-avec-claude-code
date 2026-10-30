@@ -1,0 +1,472 @@
+{
+  "board": [
+    {
+      "session_id": 17617,
+      "course": "FAB-PRISE",
+      "title": "Microsoft Fabric: getting started",
+      "day": "1/2",
+      "location": "Centre Pacha Montpellier",
+      "city": "Montpellier",
+      "room": "Salle Ritchie",
+      "status": "CONFIRMED",
+      "trainer_id": 45,
+      "trainer": "Alain Panne",
+      "home": "Bruxelles",
+      "travel": "yes",
+      "notes": [
+        "11 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17595,
+      "course": "PY-TEST",
+      "title": "Automated testing in Python with pytest",
+      "day": "2/2",
+      "location": "Centre Pacha Bruxelles",
+      "city": "Bruxelles",
+      "room": "SALLE 2",
+      "status": "CONFIRMED",
+      "trainer_id": 33,
+      "trainer": "Anita von Arb",
+      "home": "Zürich",
+      "travel": "yes",
+      "notes": [
+        "in-house: Romain & Hallaert SA",
+        "Formateur remplaçant."
+      ]
+    },
+    {
+      "session_id": 17609,
+      "course": "SE-AGILE",
+      "title": "Agility at scale: lessons learned",
+      "day": "1/1",
+      "location": "Centre Pacha Défense",
+      "city": "La Défense",
+      "room": "Salle Turing",
+      "status": "CONFIRMED",
+      "trainer_id": 38,
+      "trainer": "Arianna Grasso",
+      "home": "Lyon",
+      "travel": "yes",
+      "notes": [
+        "13 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17614,
+      "course": "PY-INIT2",
+      "title": "Python: introduction (version 3.10 and later)",
+      "day": "1/4",
+      "location": "Centre Pacha Bordeaux",
+      "city": "Bordeaux",
+      "room": "Salle Turing",
+      "status": "CONFIRMED",
+      "trainer_id": 80,
+      "trainer": "Bessem Paz",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": [
+        "in-house: Équipements Siegrist SAS",
+        "5 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17604,
+      "course": "AZ-ADM",
+      "title": "Azure: administration",
+      "day": "2/4",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 2",
+      "status": "CONFIRMED",
+      "trainer_id": 49,
+      "trainer": "Brian Prokopowicz",
+      "home": "Marseille",
+      "travel": "remote",
+      "notes": []
+    },
+    {
+      "session_id": 17608,
+      "course": "MY84-ADM",
+      "title": "MySQL 8.4: administration",
+      "day": "1/4",
+      "location": "Centre Pacha Défense",
+      "city": "La Défense",
+      "room": "SALLE 3",
+      "status": "CONFIRMED",
+      "trainer_id": 21,
+      "trainer": "Céline Lamane",
+      "home": "Grenoble",
+      "travel": "yes",
+      "notes": [
+        "7 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17605,
+      "course": "SSIS-19",
+      "title": "SSIS 2019: data integration",
+      "day": "2/4",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 6",
+      "status": "CONFIRMED",
+      "trainer_id": 31,
+      "trainer": "Denis Ferrillo",
+      "home": "Frankfurt am Main",
+      "travel": "remote",
+      "notes": [
+        "in-house: Biosciences Parent SA"
+      ]
+    },
+    {
+      "session_id": 17606,
+      "course": "JS-INIT",
+      "title": "JavaScript: language and best practices",
+      "day": "2/4",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 7",
+      "status": "CONFIRMED",
+      "trainer_id": 23,
+      "trainer": "Douchka Charroin",
+      "home": "Lyon",
+      "travel": "remote",
+      "notes": [
+        "in-house: Groupe Lebegue & Bernollin"
+      ]
+    },
+    {
+      "session_id": 17607,
+      "course": "SQL22-ADM",
+      "title": "SQL Server 2022: administration",
+      "day": "2/5",
+      "location": "Classe virtuelle",
+      "city": "",
+      "room": "Virtuelle 8",
+      "status": "CONFIRMED",
+      "trainer_id": 66,
+      "trainer": "Fernando Cameliere",
+      "home": "Toulouse",
+      "travel": "remote",
+      "notes": []
+    },
+    {
+      "session_id": 17616,
+      "course": "SPARK-DATA",
+      "title": "Apache Spark: data processing",
+      "day": "1/3",
+      "location": "Centre Pacha Sophia Antipolis",
+      "city": "Valbonne",
+      "room": "Salle Shannon",
+      "status": "CONFIRMED",
+      "trainer_id": 44,
+      "trainer": "Fouade Becher",
+      "home": "Paris",
+      "travel": "yes",
+      "notes": [
+        "5 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17592,
+      "course": "SQL25-OPT",
+      "title": "SQL Server 2025: query tuning",
+      "day": "2/4",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "SALLE 1",
+      "status": "CONFIRMED",
+      "trainer_id": 56,
+      "trainer": "Francis Moutouvirin",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17594,
+      "course": "PG14-PRISE",
+      "title": "PostgreSQL 14: getting started",
+      "day": "2/3",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "SALLE 2",
+      "status": "CONFIRMED",
+      "trainer_id": 64,
+      "trainer": "Jean-Jacques Foussarigues",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17601,
+      "course": "SQL22-ADM",
+      "title": "SQL Server 2022: administration",
+      "day": "2/5",
+      "location": "Centre Pacha Bordeaux",
+      "city": "Bordeaux",
+      "room": "Salle Lovelace",
+      "status": "CONFIRMED",
+      "trainer_id": 7,
+      "trainer": "Jeremy Tedaldi",
+      "home": "Bordeaux",
+      "travel": "no",
+      "notes": [
+        "Formateur remplaçant."
+      ]
+    },
+    {
+      "session_id": 17610,
+      "course": "API-REST",
+      "title": "Designing and consuming REST APIs",
+      "day": "1/3",
+      "location": "Centre Pacha Défense",
+      "city": "La Défense",
+      "room": "Salle Gray",
+      "status": "CONFIRMED",
+      "trainer_id": 60,
+      "trainer": "Jerome Biheul",
+      "home": "La Défense",
+      "travel": "no",
+      "notes": [
+        "8 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17599,
+      "course": "PG17-ADM",
+      "title": "PostgreSQL 17: administration",
+      "day": "2/4",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "Salle Fermat",
+      "status": "CONFIRMED",
+      "trainer_id": 14,
+      "trainer": "Juliana Laurand",
+      "home": "Paris",
+      "travel": "no",
+      "notes": []
+    },
+    {
+      "session_id": 17593,
+      "course": "API-REST",
+      "title": "Designing and consuming REST APIs",
+      "day": "2/3",
+      "location": "Centre Pacha Bruxelles",
+      "city": "Bruxelles",
+      "room": "SALLE 1",
+      "status": "CONFIRMED",
+      "trainer_id": 76,
+      "trainer": "Loriane Luirard",
+      "home": "Paris",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17611,
+      "course": "MONGO-ADM",
+      "title": "MongoDB: modeling and administration",
+      "day": "1/3",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "Salle Boole",
+      "status": "CONFIRMED",
+      "trainer_id": 65,
+      "trainer": "Marie-Line Schwartz",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": [
+        "5 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17603,
+      "course": "MG-COACH",
+      "title": "Coaching and feedback for managers",
+      "day": "2/2",
+      "location": "Business Lounge Mitte",
+      "city": "Berlin",
+      "room": "Raum Dijkstra",
+      "status": "CONFIRMED",
+      "trainer_id": 34,
+      "trainer": "Matúš Alijaj",
+      "home": "Frankfurt am Main",
+      "travel": "yes",
+      "notes": [
+        "Salle déplacée au deuxième étage."
+      ]
+    },
+    {
+      "session_id": 17596,
+      "course": "FAB-DF",
+      "title": "Microsoft Fabric: Data Factory",
+      "day": "2/2",
+      "location": "Centre Pacha Rennes",
+      "city": "Rennes",
+      "room": "SALLE 2",
+      "status": "CONFIRMED",
+      "trainer_id": 8,
+      "trainer": "Najate Rene-Corail",
+      "home": "Paris",
+      "travel": "yes",
+      "notes": [
+        "in-house: Pharma Landouzi"
+      ]
+    },
+    {
+      "session_id": 17602,
+      "course": "MG-DELEG",
+      "title": "Delegating effectively",
+      "day": "2/2",
+      "location": "Centre Pacha Montpellier",
+      "city": "Montpellier",
+      "room": "Salle Gauss",
+      "status": "CONFIRMED",
+      "trainer_id": 73,
+      "trainer": "Nathalie Delapille",
+      "home": "Paris",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17598,
+      "course": "SQL25-PRISE",
+      "title": "SQL Server 2025: getting started",
+      "day": "2/3",
+      "location": "Centre Pacha Paris 11",
+      "city": "Paris",
+      "room": "Salle Shannon",
+      "status": "CONFIRMED",
+      "trainer_id": 61,
+      "trainer": "Nelly Valon",
+      "home": "Lyon",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17590,
+      "course": "LNX-ADM2",
+      "title": "Linux: system administration with systemd",
+      "day": "2/4",
+      "location": "Centre Pacha Lille",
+      "city": "Lille",
+      "room": "SALLE 1",
+      "status": "CONFIRMED",
+      "trainer_id": 48,
+      "trainer": "Olivier Lombardi",
+      "home": "Paris",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17591,
+      "course": "MY80-OPT",
+      "title": "MySQL 8.0: query tuning",
+      "day": "2/3",
+      "location": "Centre Pacha Défense",
+      "city": "La Défense",
+      "room": "SALLE 1",
+      "status": "CONFIRMED",
+      "trainer_id": 62,
+      "trainer": "Oualid Viley",
+      "home": "La Défense",
+      "travel": "no",
+      "notes": [
+        "in-house: Grossiste Vezin SAS"
+      ]
+    },
+    {
+      "session_id": 17612,
+      "course": "SEC-CHIF",
+      "title": "Encryption and key management",
+      "day": "1/2",
+      "location": "Centre Pacha Lyon",
+      "city": "Lyon",
+      "room": "Salle Thompson",
+      "status": "OPEN",
+      "trainer_id": 41,
+      "trainer": "Pierre Maquignon",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": [
+        "open",
+        "2 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17597,
+      "course": "SQL25-HA",
+      "title": "SQL Server 2025: high availability and Always On",
+      "day": "2/4",
+      "location": "Centre Pacha Défense",
+      "city": "La Défense",
+      "room": "Salle Noether",
+      "status": "CONFIRMED",
+      "trainer_id": 58,
+      "trainer": "Ramon Bonacci",
+      "home": "Paris",
+      "travel": "yes",
+      "notes": []
+    },
+    {
+      "session_id": 17615,
+      "course": "FAB-PRISE",
+      "title": "Microsoft Fabric: getting started",
+      "day": "1/2",
+      "location": "Centre Pacha Strasbourg",
+      "city": "Strasbourg",
+      "room": "Salle Babbage",
+      "status": "CONFIRMED",
+      "trainer_id": 4,
+      "trainer": "Severine Carrie",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": [
+        "9 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17613,
+      "course": "AWS-RDS",
+      "title": "Amazon RDS: managed databases on AWS",
+      "day": "1/2",
+      "location": "Centre Pacha Bordeaux",
+      "city": "Bordeaux",
+      "room": "Salle Codd",
+      "status": "OPEN",
+      "trainer_id": 42,
+      "trainer": "Soulimane Bouhafs",
+      "home": "Nantes",
+      "travel": "yes",
+      "notes": [
+        "open",
+        "2 trainee(s)"
+      ]
+    },
+    {
+      "session_id": 17618,
+      "course": "SQL22-DIAG",
+      "title": "SQL Server 2022: performance diagnostics",
+      "day": "1/3",
+      "location": "Centre Pacha Lausanne",
+      "city": "Lausanne",
+      "room": "Salle Shannon",
+      "status": "CONFIRMED",
+      "trainer_id": 52,
+      "trainer": "Taous Bouffety",
+      "home": "Marseille",
+      "travel": "yes",
+      "notes": [
+        "9 trainee(s)"
+      ]
+    }
+  ],
+  "warnings": [],
+  "summary": {
+    "day": "2026-10-20",
+    "sessions": 28,
+    "trainers": 28,
+    "travelling": 20,
+    "in_house": 6
+  }
+}

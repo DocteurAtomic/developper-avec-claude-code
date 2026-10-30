@@ -1,0 +1,27 @@
+{
+  "board": [
+    {
+      "session_id": 18061,
+      "course": "DOCKER-2",
+      "title": "Docker: containers in production",
+      "day": "2/2",
+      "location": "Centre Pacha Bruxelles",
+      "city": "Bruxelles",
+      "room": "SALLE 2",
+      "status": "CONFIRMED",
+      "trainer_id": 53,
+      "trainer": "Pascal Baitiche",
+      "home": "La Défense",
+      "travel": "yes",
+      "notes": []
+    }
+  ],
+  "warnings": [],
+  "summary": {
+    "day": "2027-02-16",
+    "sessions": 1,
+    "trainers": 1,
+    "travelling": 1,
+    "in_house": 0
+  }
+}
