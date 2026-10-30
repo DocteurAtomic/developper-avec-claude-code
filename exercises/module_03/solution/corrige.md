@@ -30,8 +30,8 @@ Répété le 30 octobre 2026 : avec ce fichier, l'agent lance
 
 `corrige/README.md` supprime les deux lignes `export --month 2026-10 --format json`, en
 français et en anglais. L'export JSON n'existe pas dans `cli.py` : le documenter ferait
-lancer à l'agent une commande qui sort en code 2. Si l'équipe veut cet export, c'est un
-ticket, pas une ligne de documentation.
+lancer à l'agent une commande qui sort en code 2. Si l'équipe veut cet export, elle ouvre
+un ticket.
 
 ## Les coupes dans le fichier de /init
 
@@ -46,7 +46,7 @@ celui de `module-03-end` en fait 23.
 | `uv run pytest -q tests/test_unpaid.py::test_name` | faux : aucun test de ce nom, code 4 |
 | `uv run pytest -q` seul | remplacé par la suite complète, la seule à lancer |
 | « Architecture » : les trois modules et leurs fonctions | l'agent le trouve en lisant `src/`, et ce sera faux au premier remaniement |
-| Conventions du domaine (statuts, inscriptions, avoirs, salle 43) | dans les constantes de `planning.py` ; utiles pour une tâche, pas pour chaque session |
+| Conventions du domaine (statuts, inscriptions, avoirs, salle 43) | dans les constantes de `planning.py` ; utiles pour une seule tâche |
 | SQL en f-strings, requêtes N+1 | un défaut connu va au suivi des tickets |
 | « Tests » : la fixture et `conftest.py` | l'agent les trouve par `conftest.py` ; gardé en une ligne |
 | Rappel des règles de `.claude/settings.json` | déjà imposé par les réglages |

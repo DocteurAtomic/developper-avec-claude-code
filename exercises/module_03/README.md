@@ -2,8 +2,8 @@
 
 Le service planification de PachaData a gelé le planning de novembre le 29 octobre 2026.
 Tous ses rapports se calculent désormais au 2 novembre 2026, quelle que soit la date du
-jour. Teena l'a dit à l'équipe, pas au dépôt : ni le code, ni le `README`, ni le
-`CLAUDE.md` du module ne le savent. L'équipe a aussi une convention que rien dans le dépôt
+jour. Teena l'a dit à l'équipe, mais le code, le `README` et le
+`CLAUDE.md` du module l'ignorent. L'équipe a aussi une convention que rien dans le dépôt
 ne montre : toute nouvelle option de la ligne de commande a son test dans
 `tests/test_cli.py`, dans le même commit.
 
@@ -75,5 +75,5 @@ par une.
 
 ## Le corrigé
 
-Dans `solution/` : un `CLAUDE.md` de référence (30 lignes), le `README` corrigé, et
+Dans `corrige/` : un `CLAUDE.md` de référence (30 lignes), le `README` corrigé, et
 `corrige.md`, qui dit ce que la vidéo 3.3 a coupé du fichier de `/init` et pourquoi.
