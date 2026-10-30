@@ -321,6 +321,27 @@ def set_home_and_travel(conn, s, iso, line, warnings):
     return False
 
 
+def check_room(s, enrolled, rooms_seen, line, warnings):
+    """Is the room big enough, and not booked twice the same day?
+
+    `rooms_seen` maps a room to the last session seen in it, and is updated.
+    """
+    if s["room_id"] is None:
+        line["notes"].append("no room")
+        return
+    if s["seats"] is not None and enrolled > s["seats"]:
+        warnings.append(
+            f"session {s['session_id']}: {enrolled} trainees for "
+            f"{s['seats']} seats in room {s['room_name']}"
+        )
+    if s["room_id"] in rooms_seen and s["location_id"] != VIRTUAL_LOCATION_ID:
+        warnings.append(
+            f"room {s['room_name']} ({line['location']}) booked by sessions "
+            f"{rooms_seen[s['room_id']]} and {s['session_id']}"
+        )
+    rooms_seen[s["room_id"]] = s["session_id"]
+
+
 def assign_trainers(conn, day, include_unconfirmed=True):
     """Build the trainer board for one day.
 
@@ -377,20 +398,7 @@ def assign_trainers(conn, day, include_unconfirmed=True):
 
         # Room: big enough, and not booked twice the same day
         enrolled = count_enrollments(conn, s["session_id"])
-        if s["room_id"] is not None:
-            if s["seats"] is not None and enrolled > s["seats"]:
-                warnings.append(
-                    f"session {s['session_id']}: {enrolled} trainees for "
-                    f"{s['seats']} seats in room {s['room_name']}"
-                )
-            if s["room_id"] in rooms_seen and s["location_id"] != VIRTUAL_LOCATION_ID:
-                warnings.append(
-                    f"room {s['room_name']} ({line['location']}) booked by sessions "
-                    f"{rooms_seen[s['room_id']]} and {s['session_id']}"
-                )
-            rooms_seen[s["room_id"]] = s["session_id"]
-        else:
-            line["notes"].append("no room")
+        check_room(s, enrolled, rooms_seen, line, warnings)
 
         # Notes for the planning team
         if s["is_in_house"]:
