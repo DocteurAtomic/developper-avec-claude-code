@@ -2,7 +2,7 @@
 
 Le service planification de PachaData a gelé le planning de novembre le 29 octobre 2026.
 Tous ses rapports se calculent désormais au 2 novembre 2026, quelle que soit la date du
-jour. Teena l'a dit à l'équipe, mais le code, le `README` et le
+jour. Thuvia l'a dit à l'équipe, mais le code, le `README` et le
 `CLAUDE.md` du module l'ignorent. L'équipe a aussi une convention que rien dans le dépôt
 ne montre : toute nouvelle option de la ligne de commande a son test dans
 `tests/test_cli.py`, dans le même commit.
