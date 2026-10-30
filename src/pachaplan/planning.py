@@ -129,17 +129,27 @@ def upcoming_sessions(conn, today, horizon=HORIZON_DAYS):
         conn,
         f"""
         SELECT s.session_id, s.start_date, s.duration_days, s.status_code,
-               c.code, c.title, c.max_attendees, l.city, l.name AS location
+               c.code, c.title, c.max_attendees, l.city, l.name AS location,
+               tc.first_name AS trainer_first_name, tc.last_name AS trainer_last_name
         FROM session s
         JOIN course c ON c.course_id = s.course_id
         LEFT JOIN room r ON r.room_id = s.room_id
         LEFT JOIN location l ON l.location_id = r.location_id
+        LEFT JOIN trainer t ON t.trainer_id = s.trainer_id
+        LEFT JOIN contact tc ON tc.contact_id = t.contact_id
         WHERE s.start_date >= '{today.isoformat()}'
           AND s.start_date <= '{last.isoformat()}'
           AND s.status_code IN ({statuses})
         ORDER BY s.start_date, s.session_id
         """,
     )
+
+
+def session_trainer(s):
+    """Trainer of a session row, with the placeholder of the trainer board when unknown."""
+    if s["trainer_last_name"] is None:
+        return "(none)"
+    return full_name(s["trainer_first_name"], s["trainer_last_name"])
 
 
 def low_fill_sessions(conn, today, below):
@@ -158,6 +168,7 @@ def low_fill_sessions(conn, today, below):
                     "course": s["code"] or str(s["session_id"]),
                     "title": s["title"],
                     "city": s["city"] or s["location"] or "",
+                    "trainer": session_trainer(s),
                     "status": s["status_code"],
                     "enrolled": enrolled,
                     "capacity": capacity,
@@ -179,13 +190,15 @@ def print_low_fill(rows, below, today, out=sys.stdout):
             r["days_left"],
             r["title"][:45],
             r["city"],
+            r["trainer"],
             r["status"],
             f"{r['enrolled']}/{r['capacity']}",
             pct(r["fill_rate"]),
         )
         for r in rows
     ]
-    print_table(table, ["session", "start", "days", "course", "city", "status", "seats", "fill"], out)
+    headers = ["session", "start", "days", "course", "city", "trainer", "status", "seats", "fill"]
+    print_table(table, headers, out)
     print(
         f"\n{len(rows)} session(s) under {below}% between {today} "
         f"and {today + timedelta(days=HORIZON_DAYS)}.",
