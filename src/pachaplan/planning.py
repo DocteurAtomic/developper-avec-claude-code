@@ -342,6 +342,24 @@ def check_room(s, enrolled, rooms_seen, line, warnings):
     rooms_seen[s["room_id"]] = s["session_id"]
 
 
+def add_planning_notes(conn, s, day_number, enrolled, line):
+    """Notes for the planning team: in-house client, status, trainees, remarks."""
+    if s["is_in_house"]:
+        if s["company_id"] is not None:
+            client = scalar(
+                conn, f"SELECT name FROM company WHERE company_id = {s['company_id']}"
+            )
+            line["notes"].append(f"in-house: {client}")
+        else:
+            line["notes"].append("in-house")
+    if s["status_code"] != "CONFIRMED":
+        line["notes"].append(s["status_code"].lower())
+    if day_number == 1:
+        line["notes"].append(f"{enrolled} trainee(s)")
+    if s["remarks"]:
+        line["notes"].append(s["remarks"])
+
+
 def assign_trainers(conn, day, include_unconfirmed=True):
     """Build the trainer board for one day.
 
@@ -400,22 +418,9 @@ def assign_trainers(conn, day, include_unconfirmed=True):
         enrolled = count_enrollments(conn, s["session_id"])
         check_room(s, enrolled, rooms_seen, line, warnings)
 
-        # Notes for the planning team
         if s["is_in_house"]:
             in_house += 1
-            if s["company_id"] is not None:
-                client = scalar(
-                    conn, f"SELECT name FROM company WHERE company_id = {s['company_id']}"
-                )
-                line["notes"].append(f"in-house: {client}")
-            else:
-                line["notes"].append("in-house")
-        if s["status_code"] != "CONFIRMED":
-            line["notes"].append(s["status_code"].lower())
-        if day_number == 1:
-            line["notes"].append(f"{enrolled} trainee(s)")
-        if s["remarks"]:
-            line["notes"].append(s["remarks"])
+        add_planning_notes(conn, s, day_number, enrolled, line)
 
         board.append(line)
 
