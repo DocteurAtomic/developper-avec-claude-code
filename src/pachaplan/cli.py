@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import re
 import sys
 from datetime import date
 
@@ -12,6 +13,8 @@ from .db import connect, resolve_path
 def month_arg(text):
     """Argparse type for --month: validate YYYY-MM, keep the text unchanged."""
     try:
+        if not re.fullmatch(r"[0-9]{4}-[0-9]{2}", text):
+            raise ValueError(text)
         planning.parse_month(text)
     except ValueError:
         raise argparse.ArgumentTypeError(f"invalid month {text!r}, expected YYYY-MM") from None
