@@ -70,7 +70,10 @@ def parse_month(text):
     """Parse YYYY-MM and return (first day, first day of the next month)."""
     year, month = text.split("-")
     first = date(int(year), int(month), 1)
-    following = first + timedelta(days=30)
+    if first.month == 12:
+        following = date(first.year + 1, 1, 1)
+    else:
+        following = date(first.year, first.month + 1, 1)
     return first, following
 
 
