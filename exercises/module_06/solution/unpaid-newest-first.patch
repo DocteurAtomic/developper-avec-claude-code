@@ -1,0 +1,71 @@
+From 3ecf0a0b019605d7772a418dc6c3069261a7268b Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Fri, 30 Oct 2026 23:42:21 +0100
+Subject: [PATCH] Sort the unpaid report by invoice date, newest first, then
+ invoice code
+
+Accounting wants the most recent invoices at the top. Invoices issued the
+same day are ordered by invoice code.
+
+---
+ src/pachaplan/planning.py |  5 ++++-
+ tests/test_unpaid.py      | 24 ++++++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 1 deletion(-)
+
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index 194551c..7d24d80 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -552,7 +552,10 @@ def unpaid_invoices(conn, today, days, statuses=["I"]):
+         totals["balance"] += balance
+         by_customer[customer] += balance
+ 
+-    rows.sort(key=lambda r: (-r["days_late"], r["invoice_code"]))
++    # Most recent invoices first, then by invoice number. The codes are
++    # zero-padded (FA2026-000965), so string order is numeric order.
++    rows.sort(key=lambda r: r["invoice_code"])
++    rows.sort(key=lambda r: r["invoice_date"], reverse=True)
+     top = sorted(by_customer.items(), key=lambda kv: -kv[1])[:5]
+     return {"rows": rows, "totals": totals, "top_customers": top, "cutoff": cutoff.isoformat()}
+ 
+diff --git a/tests/test_unpaid.py b/tests/test_unpaid.py
+index ca1439e..a60ba73 100644
+--- a/tests/test_unpaid.py
++++ b/tests/test_unpaid.py
+@@ -1,5 +1,8 @@
++import sqlite3
++
+ from conftest import TODAY
+ 
++from pachaplan.db import connect
+ from pachaplan.planning import unpaid_invoices
+ 
+ 
+@@ -14,3 +17,24 @@ def test_unpaid_with_fewer_days_includes_recent_invoices(conn):
+     result = unpaid_invoices(conn, TODAY, 10)
+     assert sorted(r["invoice_code"] for r in result["rows"]) == ["FA2", "FA4"]
+     assert result["totals"]["balance"] == 960
++
++
++def test_unpaid_sorted_by_date_descending_then_invoice_code(db_path):
++    # Two more open invoices on the same day as FA4, inserted out of order.
++    c = sqlite3.connect(db_path)
++    c.executescript(
++        """
++        INSERT INTO invoice VALUES
++          ('FA6', 'I', NULL, 105, 1, NULL, '2026-10-20', '2026-11-19',
++           100, 120, 20, NULL, 0, NULL, NULL),
++          ('FA5', 'I', NULL, 105, 1, NULL, '2026-10-20', '2026-11-19',
++           100, 120, 20, NULL, 0, NULL, NULL);
++        """
++    )
++    c.close()
++    conn = connect(db_path)
++    try:
++        result = unpaid_invoices(conn, TODAY, 10)
++    finally:
++        conn.close()
++    assert [r["invoice_code"] for r in result["rows"]] == ["FA4", "FA5", "FA6", "FA2"]
+-- 
+2.56.0
+

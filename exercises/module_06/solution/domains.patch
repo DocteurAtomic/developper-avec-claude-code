@@ -1,0 +1,72 @@
+From 51cb2942f2c5aa304740d95f61c81a70a837cb99 Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Fri, 30 Oct 2026 23:41:24 +0100
+Subject: [PATCH] Count the listed sessions per domain at the end of the low
+ fill report
+
+---
+ src/pachaplan/planning.py |  9 ++++++++-
+ tests/test_sessions.py    | 16 ++++++++++++++++
+ 2 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/src/pachaplan/planning.py b/src/pachaplan/planning.py
+index 194551c..05a0088 100644
+--- a/src/pachaplan/planning.py
++++ b/src/pachaplan/planning.py
+@@ -132,7 +132,7 @@ def upcoming_sessions(conn, today, horizon=HORIZON_DAYS):
+         conn,
+         f"""
+         SELECT s.session_id, s.start_date, s.duration_days, s.status_code,
+-               c.code, c.title, c.max_attendees, l.city, l.name AS location,
++               c.code, c.title, c.domain_code, c.max_attendees, l.city, l.name AS location,
+                tc.first_name AS trainer_first_name, tc.last_name AS trainer_last_name
+         FROM session s
+         JOIN course c ON c.course_id = s.course_id
+@@ -170,6 +170,7 @@ def low_fill_sessions(conn, today, below):
+                     "days_left": (parse_day(s["start_date"]) - today).days,
+                     "course": s["code"] or str(s["session_id"]),
+                     "title": s["title"],
++                    "domain": s["domain_code"],
+                     "city": s["city"] or s["location"] or "",
+                     "trainer": session_trainer(s),
+                     "status": s["status_code"],
+@@ -207,6 +208,12 @@ def print_low_fill(rows, below, today, out=sys.stdout):
+         f"and {today + timedelta(days=HORIZON_DAYS)}.",
+         file=out,
+     )
++    per_domain = defaultdict(int)
++    for r in rows:
++        per_domain[r["domain"]] += 1
++    print(file=out)
++    for code in sorted(per_domain):
++        print(f"domain {code}: {per_domain[code]}", file=out)
+ 
+ 
+ # ---------------------------------------------------------------------------
+diff --git a/tests/test_sessions.py b/tests/test_sessions.py
+index e0ec91e..e24fd00 100644
+--- a/tests/test_sessions.py
++++ b/tests/test_sessions.py
+@@ -42,3 +42,19 @@ def test_low_fill_marks_a_session_without_trainer(db_path):
+         101: "Julie Lambert",
+         102: "(none)",
+     }
++
++
++def test_low_fill_counts_sessions_per_domain_sorted_by_code(db_path):
++    writable = connect(db_path, readonly=False)
++    writable.execute("INSERT INTO domain VALUES ('BI', 'Business intelligence and data')")
++    writable.execute("UPDATE course SET domain_code = 'BI' WHERE course_id = 2")
++    writable.commit()
++    writable.close()
++    conn = connect(db_path)
++    rows = low_fill_sessions(conn, TODAY, 100)
++    conn.close()
++    # 101 (DB, 20 %) is listed before 102 (BI, 75 %): the counts are sorted by code.
++    assert [r["domain"] for r in rows] == ["DB", "BI"]
++    out = io.StringIO()
++    print_low_fill(rows, 100, TODAY, out)
++    assert out.getvalue().splitlines()[-2:] == ["domain BI: 1", "domain DB: 1"]
+-- 
+2.56.0
+
