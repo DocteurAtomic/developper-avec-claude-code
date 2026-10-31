@@ -97,8 +97,10 @@ def full_name(first, last):
     return last
 
 
-def print_table(rows, headers, out=sys.stdout):
+def print_table(rows, headers, out=None):
     """Print rows as a plain text table with aligned columns."""
+    if out is None:
+        out = sys.stdout
     widths = [len(h) for h in headers]
     for row in rows:
         for i, cell in enumerate(row):
@@ -181,7 +183,9 @@ def low_fill_sessions(conn, today, below):
     return result
 
 
-def print_low_fill(rows, below, today, out=sys.stdout):
+def print_low_fill(rows, below, today, out=None):
+    if out is None:
+        out = sys.stdout
     if not rows:
         print(f"No upcoming session under {below}% in the next {HORIZON_DAYS} days.", file=out)
         return
@@ -450,7 +454,9 @@ def assign_trainers(conn, day, include_unconfirmed=True):
     return {"board": board, "warnings": warnings, "summary": summary}
 
 
-def print_trainer_day(result, out=sys.stdout):
+def print_trainer_day(result, out=None):
+    if out is None:
+        out = sys.stdout
     summary = result["summary"]
     if not result["board"]:
         print(f"No session on {summary['day']}.", file=out)
@@ -617,7 +623,9 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
     return {"rows": rows, "totals": totals, "top_customers": top, "cutoff": cutoff.isoformat()}
 
 
-def print_unpaid(result, days, out=sys.stdout):
+def print_unpaid(result, days, out=None):
+    if out is None:
+        out = sys.stdout
     rows = result["rows"]
     if not rows:
         print(f"No unpaid invoice issued before {result['cutoff']}.", file=out)
