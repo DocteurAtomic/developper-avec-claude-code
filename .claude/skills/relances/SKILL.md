@@ -12,6 +12,9 @@ Run the script from the repository root and show its output as is:
 uv run python ${CLAUDE_SKILL_DIR}/scripts/relances.py
 ```
 
+Run it as a command of its own, exactly as written, without `cd`, `;` or `echo`
+around it: the pre-approval in `allowed-tools` matches this command only.
+
 - Do not recompute the counts or the totals, and do not parse `pachaplan unpaid`
   yourself: the script applies the same rule as the tool.
 - Its first line gives the reference date (`PACHAPLAN_TODAY`, then the system date).
@@ -22,3 +25,5 @@ uv run python ${CLAUDE_SKILL_DIR}/scripts/relances.py
   script refuses to overwrite a file; never delete or rename a file to get around it.
 - If the script exits non-zero, report its message and stop.
 - Nothing is sent from here. Do not draft reminder letters unless asked.
+
+The history of this skill is in `HISTORY.md`.

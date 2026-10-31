@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(uv run pytest:*)",
-      "Bash(PACHAPLAN_DB=data/pachaplan.sqlite uv run pytest:*)"
+      "Bash(PACHAPLAN_DB=data/pachaplan.sqlite uv run pytest:*)",
+      "Skill(relances)"
     ],
     "deny": [
       "Bash(git push:*)",
