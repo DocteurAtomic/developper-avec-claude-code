@@ -26,6 +26,14 @@ def day_arg(text):
         raise argparse.ArgumentTypeError(f"invalid date {text!r}, expected YYYY-MM-DD") from None
 
 
+def is_same_file(a, b):
+    """True if both paths name the same existing file (symlinks and hard links included)."""
+    try:
+        return os.path.samefile(a, b)
+    except OSError:
+        return False
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="pachaplan",
@@ -75,8 +83,12 @@ def main(argv=None):
                 parser.error(f"invalid PACHAPLAN_TODAY {env_today!r}, expected YYYY-MM-DD")
         else:
             today = date.today()
+    db_path = resolve_path(args.db)
+    if args.command == "export" and args.output and is_same_file(args.output, db_path):
+        # open(..., "w") would truncate the database before it is even read.
+        parser.error(f"argument -o/--output: {args.output} is the database being read")
     try:
-        conn = connect(resolve_path(args.db))
+        conn = connect(db_path)
     except FileNotFoundError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1

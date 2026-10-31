@@ -129,3 +129,36 @@ def test_cli_rejects_invalid_env_today(db_path, capsys, monkeypatch, value):
         .splitlines()[-1]
         .endswith(f"error: invalid PACHAPLAN_TODAY {value!r}, expected YYYY-MM-DD")
     )
+
+
+def output_spellings(db_path):
+    """Other names of the database file: relative, with "..", through a symlink."""
+    link = db_path.with_name("link.sqlite")
+    link.symlink_to(db_path)
+    return [
+        str(db_path),
+        os.path.relpath(db_path),
+        str(db_path.parent / ".." / db_path.parent.name / db_path.name),
+        str(link),
+    ]
+
+
+@pytest.mark.parametrize("spelling", range(4))
+def test_cli_export_refuses_to_overwrite_the_database(db_path, capsys, spelling):
+    before = db_path.read_bytes()
+    output = output_spellings(db_path)[spelling]
+    with pytest.raises(SystemExit) as exc:
+        main(["--db", str(db_path), "export", "--month", "2026-09", "-o", output])
+    assert exc.value.code == 2
+    assert db_path.read_bytes() == before
+    err = capsys.readouterr().err
+    assert "Traceback" not in err
+    assert err.strip().splitlines()[-1] == (
+        f"pachaplan: error: argument -o/--output: {output} is the database being read"
+    )
+
+
+def test_cli_export_writes_to_another_file(db_path, tmp_path, capsys):
+    output = tmp_path / "export.csv"
+    assert main(["--db", str(db_path), "export", "--month", "2026-09", "-o", str(output)]) == 0
+    assert output.read_text(encoding="utf-8").startswith("invoice_code,")
