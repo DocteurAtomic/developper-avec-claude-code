@@ -54,6 +54,28 @@ uv run python .claude/skills/relances/scripts/relances.py -o relances.csv # la l
 
 Le script n'écrase jamais un fichier existant et n'envoie rien.
 
+### Le serveur MCP
+
+`pachaplan-mcp` répond aux questions de planification pour un agent comme Claude Code,
+sans lui ouvrir le shell. Il tourne en local (stdio) et expose deux outils en lecture
+seule : les sessions qui commencent dans une semaine, et la charge d'un formateur sur un
+mois. Le fichier `.mcp.json` le déclare pour le projet ; Claude Code demande de
+l'approuver à la première session.
+
+```bash
+uv run pachaplan-mcp                      # le serveur, sur data/pachaplan.sqlite
+claude mcp get pachaplan                  # son état dans Claude Code
+```
+
+Chaque connexion du serveur refuse toute écriture, `ATTACH` compris.
+
+### Les automatismes
+
+`scripts/monday-note.sh` prépare la note du lundi du service planification par
+`claude -p` (dans `reports/`, ignoré par Git). Le workflow
+`.github/workflows/claude-review.yml` relit chaque pull request ; il demande le secret
+`CLAUDE_CODE_OAUTH_TOKEN`.
+
 ### Les tests
 
 ```bash
@@ -118,6 +140,26 @@ uv run python .claude/skills/relances/scripts/relances.py -o relances.csv # the 
 ```
 
 The script never overwrites an existing file and sends nothing.
+
+### The MCP server
+
+`pachaplan-mcp` answers planning questions for an agent such as Claude Code, without
+giving it a shell. It runs locally (stdio) and exposes two read-only tools: the sessions
+starting in a week, and the load of a trainer over a month. `.mcp.json` declares it for
+the project; Claude Code asks you to approve it in the first session.
+
+```bash
+uv run pachaplan-mcp                      # the server, on data/pachaplan.sqlite
+claude mcp get pachaplan                  # its status in Claude Code
+```
+
+Every connection of the server refuses any write, `ATTACH` included.
+
+### Automation
+
+`scripts/monday-note.sh` prepares the Monday note of the planning team with `claude -p`
+(in `reports/`, ignored by Git). The `.github/workflows/claude-review.yml` workflow
+reviews every pull request; it needs the `CLAUDE_CODE_OAUTH_TOKEN` secret.
 
 ### Tests
 
