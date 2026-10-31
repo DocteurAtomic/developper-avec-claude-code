@@ -21,6 +21,9 @@ as `uv run pachaplan ...`; global options (`--db`, `--today`) go before the subc
 - `data/pachaplan.sqlite` is never written. `db.py` opens it read-only; anything that
   writes takes a copy passed with `--db`.
 - Unit tests build their own database from `tests/fixture.sql`.
+- A `PreToolUse` hook (`.claude/hooks/protect_data.py`) refuses Edit and Write under
+  `data/`. It does not see Bash: a command that writes a file, such as `export -o`,
+  never targets `data/`.
 
 ## Hooks
 

@@ -14,6 +14,24 @@
     "baseRef": "head"
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv",
+            "args": [
+              "run",
+              "--project",
+              "${CLAUDE_PROJECT_DIR}",
+              "python",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/protect_data.py"
+            ]
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
