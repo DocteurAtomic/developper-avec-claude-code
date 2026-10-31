@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "pachaplan": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "pachaplan-mcp"
+      ],
+      "env": {}
+    }
+  }
+}

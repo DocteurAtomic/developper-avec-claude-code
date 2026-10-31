@@ -3,7 +3,8 @@
     "allow": [
       "Bash(uv run pytest:*)",
       "Bash(PACHAPLAN_DB=data/pachaplan.sqlite uv run pytest:*)",
-      "Skill(relances)"
+      "Skill(relances)",
+      "mcp__pachaplan__*"
     ],
     "deny": [
       "Bash(git push:*)",

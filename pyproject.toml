@@ -6,10 +6,13 @@ readme = "README.md"
 license = "MIT"
 authors = [{ name = "DocteurAtomic" }]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "mcp==2.3.0",
+]
 
 [project.scripts]
 pachaplan = "pachaplan.cli:main"
+pachaplan-mcp = "pachaplan.mcp_server:main"
 
 [build-system]
 requires = ["uv_build>=0.13.1,<0.14.0"]
