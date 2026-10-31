@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 
@@ -82,6 +83,35 @@ def test_cli_rejects_invalid_date(db_path, capsys, option, args):
 def test_cli_export_accepts_valid_month(db_path, capsys):
     assert main(["--db", str(db_path), "export", "--month", "2026-12"]) == 0
     assert capsys.readouterr().out.splitlines()[0].startswith("invoice_code")
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ["unpaid", "--days", "30"],
+        ["sessions", "--below", "50"],
+        ["trainers", "--date", "2026-11-10"],
+        ["export", "--month", "2026-11"],
+    ],
+)
+def test_cli_exits_quietly_when_stdout_is_closed(db_path, args):
+    # The planning team reads reports with `pachaplan unpaid --days 30 | head`: once
+    # head exits, writing to stdout raised BrokenPipeError with a traceback. Closing the
+    # read end before the process starts reproduces this deterministically.
+    read_fd, write_fd = os.pipe()
+    os.close(read_fd)
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "pachaplan.cli", "--db", str(db_path), "--today", "2026-11-02"]
+            + args,
+            stdout=write_fd,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    finally:
+        os.close(write_fd)
+    assert result.stderr == ""
+    assert result.returncode == 0
 
 
 @pytest.mark.parametrize("value", ["02/11/2026", "11/02/26", "2026-11-31"])

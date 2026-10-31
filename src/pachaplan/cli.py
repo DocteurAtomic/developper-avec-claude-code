@@ -81,6 +81,18 @@ def main(argv=None):
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
+    try:
+        run_command(args, conn, today)
+        sys.stdout.flush()
+    except BrokenPipeError:
+        # The reader of stdout exited early, e.g. `pachaplan unpaid --days 30 | head`.
+        # Redirect stdout to devnull so the interpreter's final flush does not fail again.
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, sys.stdout.fileno())
+    return 0
+
+
+def run_command(args, conn, today):
     with conn:
         if args.command == "sessions":
             rows = planning.low_fill_sessions(conn, today, args.below)
@@ -98,7 +110,6 @@ def main(argv=None):
                 print(f"{count} lines written to {args.output}, total {total:.2f}")
             else:
                 planning.export_month(conn, args.month, sys.stdout)
-    return 0
 
 
 if __name__ == "__main__":
