@@ -65,6 +65,9 @@ def test_export_includes_the_last_day_of_a_31_day_month(db_path):
 
 
 def test_february_export_stops_before_march(db_path):
+    add_invoice(db_path, "FA0228", "2026-02-28", 100, 120)
     add_invoice(db_path, "FA0301", "2026-03-01", 100, 120)
     rows = export_rows(db_path, "2026-02")
-    assert "FA0301" not in [r[0] for r in rows[1:-1]]
+    codes = [r[0] for r in rows[1:-1]]
+    assert "FA0228" in codes
+    assert "FA0301" not in codes
