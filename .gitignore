@@ -22,3 +22,6 @@ dist/
 
 # Personal Claude Code instructions
 CLAUDE.local.md
+
+# Notes written by scripts/monday-note.sh, and the log of their claude -p run
+/reports/
