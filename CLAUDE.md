@@ -23,3 +23,9 @@ as `uv run pachaplan ...`; global options (`--db`, `--today`) go before the subc
 ## Conventions
 
 - Code, comments and commit messages are in English, even when the request is in French.
+
+## Reporting
+
+- End every task with three short lists: what succeeded, what failed, and what was not
+  run or not checked. Give the command behind each item. "Not run" is never empty by
+  default: say what you could not check from here.
