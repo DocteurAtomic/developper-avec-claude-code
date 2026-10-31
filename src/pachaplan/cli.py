@@ -62,9 +62,18 @@ def build_parser():
 
 
 def main(argv=None):
-    args = build_parser().parse_args(argv)
-    env_today = os.environ.get("PACHAPLAN_TODAY")
-    today = args.today or (planning.parse_day(env_today) if env_today else date.today())
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    today = args.today
+    if today is None:
+        env_today = os.environ.get("PACHAPLAN_TODAY")
+        if env_today:
+            try:
+                today = planning.parse_day(env_today)
+            except ValueError:
+                parser.error(f"invalid PACHAPLAN_TODAY {env_today!r}, expected YYYY-MM-DD")
+        else:
+            today = date.today()
     try:
         conn = connect(resolve_path(args.db))
     except FileNotFoundError as exc:

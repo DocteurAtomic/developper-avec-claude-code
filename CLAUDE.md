@@ -5,10 +5,10 @@ as `uv run pachaplan ...`; global options (`--db`, `--today`) go before the subc
 
 ## Commands
 
-- Full test suite: `PACHAPLAN_DB=data/pachaplan.sqlite uv run pytest -q`, 48 tests.
+- Full test suite: `PACHAPLAN_DB=data/pachaplan.sqlite uv run pytest -q`, 51 tests.
   Without the variable, `tests/test_integration.py` and
   `tests/test_trainers_characterization_real.py` are skipped and pytest still exits 0
-  (40 passed, 8 skipped; seen on 2026-11-02 with an older suite: eight tests announced,
+  (43 passed, 8 skipped; seen on 2026-11-02 with an older suite: eight tests announced,
   seven passed, one skipped). Report the
   passed and skipped counts, never "all tests pass" alone.
 - CI runs `uv run pytest -q --fail-on-skip` with `PACHAPLAN_DB` set: a skipped test

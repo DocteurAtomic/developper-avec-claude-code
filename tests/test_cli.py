@@ -53,3 +53,18 @@ def test_cli_rejects_invalid_date(db_path, capsys, option, args):
 def test_cli_export_accepts_valid_month(db_path, capsys):
     assert main(["--db", str(db_path), "export", "--month", "2026-12"]) == 0
     assert capsys.readouterr().out.splitlines()[0].startswith("invoice_code")
+
+
+@pytest.mark.parametrize("value", ["02/11/2026", "11/02/26", "2026-11-31"])
+def test_cli_rejects_invalid_env_today(db_path, capsys, monkeypatch, value):
+    # The planning team's script used PACHAPLAN_TODAY=$(date +%x), which follows the
+    # locale (02/11/2026 in fr_FR) and crashed with a traceback.
+    monkeypatch.setenv("PACHAPLAN_TODAY", value)
+    with pytest.raises(SystemExit) as exc:
+        main(["--db", str(db_path), "sessions", "--below", "50"])
+    assert exc.value.code == 2
+    err = capsys.readouterr().err
+    assert "Traceback" not in err
+    assert err.strip().splitlines()[-1].endswith(
+        f"error: invalid PACHAPLAN_TODAY {value!r}, expected YYYY-MM-DD"
+    )
