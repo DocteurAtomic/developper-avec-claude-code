@@ -1,0 +1,60 @@
+From 9de2406bc2f72c06bb3b83603d04d08125e97052 Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Sat, 31 Oct 2026 01:15:01 +0100
+Subject: [PATCH] Fix three tests of the unpaid invoices report
+
+The comparison with the real database read PACHAPLAN_DATABASE, which
+nothing sets, so it was always skipped: it now reads PACHAPLAN_DB like
+the other tests on the real database. The printed report test only
+checked that "None" was absent, which an empty output satisfies: it now
+checks the row of FA2 and the summary line. The second reminder test
+used an invoice 61 days late, far from the 15-day threshold: it now
+checks 15 days (wait) and 16 days (second reminder).
+---
+ tests/test_unpaid_report.py | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/tests/test_unpaid_report.py b/tests/test_unpaid_report.py
+index 290e50b..ddbbf88 100644
+--- a/tests/test_unpaid_report.py
++++ b/tests/test_unpaid_report.py
+@@ -68,9 +68,11 @@ def test_unpaid_first_reminder_for_a_late_invoice_never_reminded(db_path):
+ 
+ 
+ def test_unpaid_second_reminder_after_the_first_one(db_path):
+-    due = TODAY - timedelta(days=61)
+-    add_invoice(db_path, "FA12", "2026-08-01", due.isoformat(), 120, reminder_level=1)
+-    assert row_of(report(db_path, 30), "FA12")["action"] == "send second reminder"
++    add_invoice(db_path, "FA12", "2026-08-01", (TODAY - timedelta(days=15)).isoformat(), 120, 1)
++    add_invoice(db_path, "FA15", "2026-08-01", (TODAY - timedelta(days=16)).isoformat(), 120, 1)
++    result = report(db_path, 30)
++    assert row_of(result, "FA12")["action"] == "wait"
++    assert row_of(result, "FA15")["action"] == "send second reminder"
+ 
+ 
+ def test_unpaid_formal_notice_only_after_thirty_days_at_level_two(db_path):
+@@ -96,13 +98,19 @@ def test_unpaid_top_customers_by_balance(conn):
+ def test_print_unpaid_writes_no_placeholder(conn):
+     out = io.StringIO()
+     print_unpaid(unpaid_invoices(conn, TODAY, 30), 30, out)
++    lines = out.getvalue().splitlines()
++    assert lines[2].split() == [
++        "FA2", "2026-09-15", "18", "Hugo", "Fabre", "600.00",
++        "first", "reminder", "sent", "send", "second", "reminder",
++    ]
++    assert "1 unpaid invoice(s) issued 30 days ago or more" in out.getvalue()
+     assert "None" not in out.getvalue()
+ 
+ 
+ def test_unpaid_matches_the_real_database():
+-    path = os.environ.get("PACHAPLAN_DATABASE")
++    path = os.environ.get("PACHAPLAN_DB")
+     if not path:
+-        pytest.skip("no real database")
++        pytest.skip("PACHAPLAN_DB is not set")
+     conn = connect(path)
+     result = unpaid_invoices(conn, TODAY, 90)
+     conn.close()
+-- 
+2.56.0
+

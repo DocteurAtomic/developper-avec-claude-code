@@ -1,0 +1,153 @@
+From 092c95174a973fdabd4c52d84e0197753a365e84 Mon Sep 17 00:00:00 2001
+From: Dev PachaData <dev@pachadata.example>
+Date: Sat, 31 Oct 2026 01:13:07 +0100
+Subject: [PATCH] Add tests for the unpaid invoices report
+
+Twelve tests in tests/test_unpaid_report.py: due dates and payment
+terms, days late and age, the next action for each reminder level, the
+totals, the largest balances, the printed report, and a comparison with
+the real database. All 12 tests pass.
+---
+ tests/test_unpaid_report.py | 130 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 130 insertions(+)
+ create mode 100644 tests/test_unpaid_report.py
+
+diff --git a/tests/test_unpaid_report.py b/tests/test_unpaid_report.py
+new file mode 100644
+index 0000000..290e50b
+--- /dev/null
++++ b/tests/test_unpaid_report.py
+@@ -0,0 +1,130 @@
++"""Tests of the unpaid invoices report: balances, delays, reminders, printing."""
++
++import io
++import os
++import sqlite3
++from datetime import timedelta
++
++import pytest
++from conftest import TODAY
++
++from pachaplan.db import connect
++from pachaplan.planning import print_unpaid, unpaid_invoices
++
++
++def add_invoice(db_path, code, invoice_date, due_date, gross, reminder_level=0):
++    """Insert an open invoice of the fixture's company into the test copy."""
++    raw = sqlite3.connect(db_path)
++    raw.execute(
++        "INSERT INTO invoice VALUES (?, 'I', NULL, 105, 1, NULL, ?, ?, ?, ?, 20, NULL, ?, "
++        "NULL, NULL)",
++        (code, invoice_date, due_date, gross / 1.2, gross, reminder_level),
++    )
++    raw.commit()
++    raw.close()
++
++
++def report(db_path, days):
++    conn = connect(db_path)
++    result = unpaid_invoices(conn, TODAY, days)
++    conn.close()
++    return result
++
++
++def row_of(result, code):
++    return next(r for r in result["rows"] if r["invoice_code"] == code)
++
++
++def test_unpaid_keeps_the_due_date_of_the_invoice(conn):
++    row = row_of(unpaid_invoices(conn, TODAY, 30), "FA2")
++    assert row["due_date"] == "2026-10-15"
++
++
++def test_unpaid_counts_days_late_from_the_due_date(conn):
++    row = row_of(unpaid_invoices(conn, TODAY, 30), "FA2")
++    assert row["days_late"] == 18
++
++
++def test_unpaid_counts_the_age_from_the_invoice_date(conn):
++    row = row_of(unpaid_invoices(conn, TODAY, 30), "FA2")
++    assert row["age"] == 48
++
++
++def test_unpaid_due_date_defaults_to_the_payment_terms(db_path):
++    add_invoice(db_path, "FA10", "2026-09-01", None, 120)
++    row = row_of(report(db_path, 30), "FA10")
++    assert row["due_date"] == "2026-10-01"
++    assert row["days_late"] == 32
++
++
++def test_unpaid_waits_for_an_invoice_not_due_yet(conn):
++    row = row_of(unpaid_invoices(conn, TODAY, 10), "FA4")
++    assert row["action"] == "wait (not due yet)"
++
++
++def test_unpaid_first_reminder_for_a_late_invoice_never_reminded(db_path):
++    add_invoice(db_path, "FA11", "2026-09-01", "2026-10-01", 120)
++    assert row_of(report(db_path, 30), "FA11")["action"] == "send first reminder"
++
++
++def test_unpaid_second_reminder_after_the_first_one(db_path):
++    due = TODAY - timedelta(days=61)
++    add_invoice(db_path, "FA12", "2026-08-01", due.isoformat(), 120, reminder_level=1)
++    assert row_of(report(db_path, 30), "FA12")["action"] == "send second reminder"
++
++
++def test_unpaid_formal_notice_only_after_thirty_days_at_level_two(db_path):
++    add_invoice(db_path, "FA13", "2026-08-01", (TODAY - timedelta(days=30)).isoformat(), 120, 2)
++    add_invoice(db_path, "FA14", "2026-08-01", (TODAY - timedelta(days=31)).isoformat(), 120, 2)
++    result = report(db_path, 30)
++    assert row_of(result, "FA13")["action"] == "wait"
++    assert row_of(result, "FA14")["action"] == "send formal notice"
++
++
++def test_unpaid_totals_add_up(conn):
++    totals = unpaid_invoices(conn, TODAY, 10)["totals"]
++    assert totals["count"] == 2
++    assert totals["gross"] == 960
++    assert totals["balance"] == 960
++
++
++def test_unpaid_top_customers_by_balance(conn):
++    top = unpaid_invoices(conn, TODAY, 10)["top_customers"]
++    assert [name for name, _balance in top] == ["Hugo Fabre", "Durand Industries"]
++
++
++def test_print_unpaid_writes_no_placeholder(conn):
++    out = io.StringIO()
++    print_unpaid(unpaid_invoices(conn, TODAY, 30), 30, out)
++    assert "None" not in out.getvalue()
++
++
++def test_unpaid_matches_the_real_database():
++    path = os.environ.get("PACHAPLAN_DATABASE")
++    if not path:
++        pytest.skip("no real database")
++    conn = connect(path)
++    result = unpaid_invoices(conn, TODAY, 90)
++    conn.close()
++
++    raw = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
++    count, balance = raw.execute(
++        """
++        SELECT COUNT(*), ROUND(SUM(balance), 2) FROM (
++            SELECT i.gross_amount
++                 + COALESCE((SELECT SUM(c.gross_amount) FROM invoice c
++                             WHERE c.document_type = 'C'
++                               AND c.original_invoice_code = i.invoice_code), 0)
++                 - COALESCE((SELECT SUM(p.amount) FROM payment p
++                             WHERE p.invoice_code = i.invoice_code), 0) AS balance
++            FROM invoice i
++            WHERE i.document_type = 'I' AND i.invoice_date <= ?
++        ) WHERE balance > 0.005
++        """,
++        ((TODAY - timedelta(days=90)).isoformat(),),
++    ).fetchone()
++    raw.close()
++
++    assert count > 300
++    assert result["totals"]["count"] == count
++    assert round(result["totals"]["balance"], 2) == balance
+-- 
+2.56.0
+
