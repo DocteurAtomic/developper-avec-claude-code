@@ -12,5 +12,25 @@
   },
   "worktree": {
     "baseRef": "head"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv",
+            "args": [
+              "run",
+              "--project",
+              "${CLAUDE_PROJECT_DIR}",
+              "python",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/ruff_after_edit.py"
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

@@ -22,6 +22,12 @@ as `uv run pachaplan ...`; global options (`--db`, `--today`) go before the subc
   writes takes a copy passed with `--db`.
 - Unit tests build their own database from `tests/fixture.sql`.
 
+## Hooks
+
+- `.claude/settings.json` runs `.claude/hooks/ruff_after_edit.py` after every Edit and
+  Write: `ruff format`, then `ruff check` on the file. A ruff error comes back as a hook
+  error; fix it in the file, even when it appeared between two edits of the same change.
+
 ## Conventions
 
 - Code, comments and commit messages are in English, even when the request is in French.
