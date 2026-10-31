@@ -1,0 +1,80 @@
+diff --git a/.claude/settings.json b/.claude/settings.json
+index c7f0b34..31fa493 100644
+--- a/.claude/settings.json
++++ b/.claude/settings.json
+@@ -4,12 +4,16 @@
+       "Bash(uv run pytest:*)",
+       "Bash(PACHAPLAN_DB=data/pachaplan.sqlite uv run pytest:*)",
+       "Skill(relances)",
+-      "mcp__pachaplan__*"
++      "mcp__pachaplan__sessions_starting_in_week",
++      "mcp__pachaplan__trainer_month_load"
+     ],
+     "deny": [
+       "Bash(git push:*)",
+-      "Read(./.env)"
+-    ]
++      "Read(./.env)",
++      "Read(./.env.*)",
++      "Read(!.env.example)"
++    ],
++    "disableBypassPermissionsMode": "disable"
+   },
+   "sandbox": {
+     "enabled": true,
+@@ -17,6 +21,25 @@
+     "filesystem": {
+       "allowWrite": [
+         "~/.cache/uv"
++      ],
++      "denyWrite": [
++        "./.venv"
++      ]
++    },
++    "credentials": {
++      "files": [
++        {
++          "path": "~/.ssh",
++          "mode": "deny"
++        },
++        {
++          "path": "~/.git-credentials",
++          "mode": "deny"
++        },
++        {
++          "path": "~/.claude/.credentials.json",
++          "mode": "deny"
++        }
+       ]
+     }
+   },
+diff --git a/.gitignore b/.gitignore
+index 6f85b17..f7b8f58 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -10,6 +10,9 @@ dist/
+ 
+ # Local settings and secrets
+ .env
++.env.*
++!.env.example
++.claude/settings.local.json
+ 
+ # Claude Code worktrees
+ .claude/worktrees/
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 74272b0..6206923 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -14,8 +14,9 @@ as `uv run pachaplan ...`; global options (`--db`, `--today`) go before the subc
+   fails the build. The option is defined in `tests/conftest.py`.
+ - Lint: `uv run ruff check`. It exits 0 and CI fails the build on any lint error.
+   Fix new errors in the code; do not add `noqa` or ignore rules in `pyproject.toml`.
+-- MCP server: `uv run pachaplan-mcp` (stdio), declared in `.mcp.json`. Its tools are
+-  allowed in `.claude/settings.json` (`mcp__pachaplan__*`) because they only read.
++- MCP server: `uv run pachaplan-mcp` (stdio), declared in `.mcp.json`. Its two tools are
++  allowed by name in `.claude/settings.json` because they only read; a new tool gets
++  its own rule, after review.
+ - Monday note: `bash scripts/monday-note.sh`, a `claude -p` run that writes
+   `reports/note-DAY.md` (ignored by git). `.github/workflows/claude-review.yml` reviews
+   pull requests; it needs the `CLAUDE_CODE_OAUTH_TOKEN` secret.
