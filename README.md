@@ -40,6 +40,20 @@ Deux options valent pour toutes les commandes et se placent avant elle :
 La base s'ouvre en lecture seule. Une commande qui doit écrire travaille sur une copie
 passée par `--db`, jamais sur `data/pachaplan.sqlite`.
 
+### Les relances
+
+Les relances de la semaine (factures à relancer, par niveau, avec leur nombre et leur
+solde) sortent d'un script, que le skill `relances` de Claude Code lance aussi
+(`/relances`, ou « prépare les relances de la semaine ») :
+
+```bash
+uv run python .claude/skills/relances/scripts/relances.py                 # le résumé par niveau
+uv run python .claude/skills/relances/scripts/relances.py --detail second # les factures d'un niveau
+uv run python .claude/skills/relances/scripts/relances.py -o relances.csv # la liste dans un fichier neuf
+```
+
+Le script n'écrase jamais un fichier existant et n'envoie rien.
+
 ### Les tests
 
 ```bash
@@ -90,6 +104,20 @@ Two options apply to every command and go before it:
 
 The database is opened read-only. A command that has to write works on a copy given with
 `--db`, never on `data/pachaplan.sqlite`.
+
+### Payment reminders
+
+This week's reminders (invoices to remind, by level, with their count and balance) come
+from a script, which the `relances` skill of Claude Code also runs (`/relances`, or
+"prepare this week's reminders"):
+
+```bash
+uv run python .claude/skills/relances/scripts/relances.py                 # summary by level
+uv run python .claude/skills/relances/scripts/relances.py --detail second # invoices of one level
+uv run python .claude/skills/relances/scripts/relances.py -o relances.csv # the list in a new file
+```
+
+The script never overwrites an existing file and sends nothing.
 
 ### Tests
 
