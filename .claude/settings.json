@@ -11,6 +11,15 @@
       "Read(./.env)"
     ]
   },
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": false,
+    "filesystem": {
+      "allowWrite": [
+        "~/.cache/uv"
+      ]
+    }
+  },
   "worktree": {
     "baseRef": "head"
   },
