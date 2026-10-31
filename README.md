@@ -26,7 +26,7 @@ uv run pachaplan sessions --below 50          # sessions à venir remplies à mo
 uv run pachaplan trainers --date 2026-11-18   # formateurs en session ce jour-là
 uv run pachaplan unpaid --days 30             # factures émises il y a 30 jours ou plus et non soldées
 uv run pachaplan export --month 2026-10       # lignes de facture du mois, en CSV
-uv run pachaplan export --month 2026-10 --format json   # le même export en JSON, pour le tableau de bord de la comptabilité
+uv run pachaplan export --month 2026-10 -o 2026-10.csv   # le même export écrit dans un fichier CSV
 ```
 
 Deux options valent pour toutes les commandes et se placent avant elle :
@@ -77,7 +77,7 @@ uv run pachaplan sessions --below 50          # upcoming sessions filled under 5
 uv run pachaplan trainers --date 2026-11-18   # trainers teaching on that day
 uv run pachaplan unpaid --days 30             # invoices issued 30 days ago or more, still open
 uv run pachaplan export --month 2026-10       # invoice lines of the month, as CSV
-uv run pachaplan export --month 2026-10 --format json   # the same export as JSON, for the accounting dashboard
+uv run pachaplan export --month 2026-10 -o 2026-10.csv   # the same export written to a CSV file
 ```
 
 Two options apply to every command and go before it:
