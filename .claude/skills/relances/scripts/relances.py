@@ -33,8 +33,11 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(prog="relances", description=__doc__.splitlines()[0])
     parser.add_argument("--today", help="reference date (default: $PACHAPLAN_TODAY, then today)")
     parser.add_argument("--db", help="database (default: $PACHAPLAN_DB, then the data/ file)")
-    parser.add_argument("--detail", choices=[key for key, _ in LEVELS.values()],
-                        help="also list the invoices of one level")
+    parser.add_argument(
+        "--detail",
+        choices=[key for key, _ in LEVELS.values()],
+        help="also list the invoices of one level",
+    )
     parser.add_argument("-o", "--output", help="write all the reminders to a new CSV file")
     args = parser.parse_args(argv)
     text = args.today or os.environ.get("PACHAPLAN_TODAY")
@@ -93,19 +96,30 @@ def main(argv=None):
     if args.detail:
         print()
         for r in groups[args.detail]:
-            print(f"{r['invoice_code']};{r['invoice_date']};{r['days_late']};"
-                  f"{r['customer']};{r['balance']:.2f}")
+            print(
+                f"{r['invoice_code']};{r['invoice_date']};{r['days_late']};"
+                f"{r['customer']};{r['balance']:.2f}"
+            )
 
     if args.output:
         try:
             with open(args.output, "x", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
-                writer.writerow(["level", "invoice_code", "invoice_date", "days_late",
-                                 "customer", "balance"])
+                writer.writerow(
+                    ["level", "invoice_code", "invoice_date", "days_late", "customer", "balance"]
+                )
                 for key, _ in LEVELS.values():
                     for r in groups[key]:
-                        writer.writerow([key, r["invoice_code"], r["invoice_date"],
-                                         r["days_late"], r["customer"], f"{r['balance']:.2f}"])
+                        writer.writerow(
+                            [
+                                key,
+                                r["invoice_code"],
+                                r["invoice_date"],
+                                r["days_late"],
+                                r["customer"],
+                                f"{r['balance']:.2f}",
+                            ]
+                        )
         except FileExistsError:
             print(f"relances: {args.output} already exists, nothing written", file=sys.stderr)
             return 1

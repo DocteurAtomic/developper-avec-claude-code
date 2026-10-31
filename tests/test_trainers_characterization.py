@@ -78,11 +78,7 @@ SESSION_102 = {
         (
             "2026-12-20",
             True,
-            [
-                board_line(
-                    session_id=104, status="PLANNED", notes=["planned", "0 trainee(s)"]
-                )
-            ],
+            [board_line(session_id=104, status="PLANNED", notes=["planned", "0 trainee(s)"])],
         ),
         ("2026-12-20", False, []),
         # Before session 101, after session 102, canceled 103, completed 105.
@@ -172,9 +168,7 @@ def scenario(db_path):
     c.close()
 
 
-LINE_201 = board_line(
-    session_id=201, trainer_id=None, trainer="(none)", home="", travel=""
-)
+LINE_201 = board_line(session_id=201, trainer_id=None, trainer="(none)", home="", travel="")
 LINE_202 = board_line(
     session_id=202,
     location="Centre Pacha Lyon",

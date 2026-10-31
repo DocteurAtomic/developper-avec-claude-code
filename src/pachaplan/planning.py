@@ -327,8 +327,7 @@ def check_trainer_availability(s, trainer, start, iso, line, warnings):
     end = session_end(start, s["duration_days"])
     if trainer["arrival_date"] and trainer["arrival_date"] > iso:
         warnings.append(
-            f"session {s['session_id']}: {line['trainer']} only starts on "
-            f"{trainer['arrival_date']}"
+            f"session {s['session_id']}: {line['trainer']} only starts on {trainer['arrival_date']}"
         )
     if trainer["departure_date"] and trainer["departure_date"] < end.isoformat():
         warnings.append(
@@ -382,9 +381,7 @@ def add_planning_notes(conn, s, day_number, enrolled, line):
     """Notes for the planning team: in-house client, status, trainees, remarks."""
     if s["is_in_house"]:
         if s["company_id"] is not None:
-            client = scalar(
-                conn, f"SELECT name FROM company WHERE company_id = {s['company_id']}"
-            )
+            client = scalar(conn, f"SELECT name FROM company WHERE company_id = {s['company_id']}")
             line["notes"].append(f"in-house: {client}")
         else:
             line["notes"].append("in-house")
@@ -710,7 +707,20 @@ def export_month(conn, month, out=sys.stdout):
         total_vat += vat
         total_gross += gross
     writer.writerow(
-        ["TOTAL", month, "", "", "", "", f"{len(lines)} lines", "", "",
-         f"{total_net:.2f}", "", f"{total_vat:.2f}", f"{total_gross:.2f}"]
+        [
+            "TOTAL",
+            month,
+            "",
+            "",
+            "",
+            "",
+            f"{len(lines)} lines",
+            "",
+            "",
+            f"{total_net:.2f}",
+            "",
+            f"{total_vat:.2f}",
+            f"{total_gross:.2f}",
+        ]
     )
     return len(lines), round(total_gross, 2)

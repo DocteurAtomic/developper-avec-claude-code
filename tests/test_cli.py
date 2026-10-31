@@ -10,15 +10,39 @@ def test_cli_sessions_lists_low_fill_sessions(db_path):
     # Run in a subprocess: print_low_fill binds sys.stdout as a default argument at
     # import time, so capsys and capfd never see what it prints.
     result = subprocess.run(
-        [sys.executable, "-m", "pachaplan.cli", "--db", str(db_path),
-         "--today", "2026-11-02", "sessions", "--below", "50"],
-        capture_output=True, text=True, check=True,
+        [
+            sys.executable,
+            "-m",
+            "pachaplan.cli",
+            "--db",
+            str(db_path),
+            "--today",
+            "2026-11-02",
+            "sessions",
+            "--below",
+            "50",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
     )
     lines = result.stdout.splitlines()
     rows = [line.split() for line in lines if line[:3].isdigit()]
     assert rows == [
-        ["101", "2026-11-10", "8", "SQL:", "getting", "started", "Paris",
-         "Julie", "Lambert", "CONFIRMED", "2/10", "20%"],
+        [
+            "101",
+            "2026-11-10",
+            "8",
+            "SQL:",
+            "getting",
+            "started",
+            "Paris",
+            "Julie",
+            "Lambert",
+            "CONFIRMED",
+            "2/10",
+            "20%",
+        ],
     ]
     assert lines[-1] == "1 session(s) under 50.0% between 2026-11-02 and 2026-12-02."
 
@@ -35,18 +59,23 @@ def test_cli_export_rejects_invalid_month(db_path, capsys, month):
     )
 
 
-@pytest.mark.parametrize("option,args", [
-    ("--date", ["trainers", "--date", "2026-11-31"]),
-    ("--today", ["--today", "2026-11-31", "sessions", "--below", "50"]),
-])
+@pytest.mark.parametrize(
+    "option,args",
+    [
+        ("--date", ["trainers", "--date", "2026-11-31"]),
+        ("--today", ["--today", "2026-11-31", "sessions", "--below", "50"]),
+    ],
+)
 def test_cli_rejects_invalid_date(db_path, capsys, option, args):
     with pytest.raises(SystemExit) as exc:
         main(["--db", str(db_path), *args])
     assert exc.value.code == 2
     err = capsys.readouterr().err
     assert "Traceback" not in err
-    assert err.strip().splitlines()[-1].endswith(
-        f"error: argument {option}: invalid date '2026-11-31', expected YYYY-MM-DD"
+    assert (
+        err.strip()
+        .splitlines()[-1]
+        .endswith(f"error: argument {option}: invalid date '2026-11-31', expected YYYY-MM-DD")
     )
 
 
@@ -65,6 +94,8 @@ def test_cli_rejects_invalid_env_today(db_path, capsys, monkeypatch, value):
     assert exc.value.code == 2
     err = capsys.readouterr().err
     assert "Traceback" not in err
-    assert err.strip().splitlines()[-1].endswith(
-        f"error: invalid PACHAPLAN_TODAY {value!r}, expected YYYY-MM-DD"
+    assert (
+        err.strip()
+        .splitlines()[-1]
+        .endswith(f"error: invalid PACHAPLAN_TODAY {value!r}, expected YYYY-MM-DD")
     )

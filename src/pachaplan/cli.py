@@ -45,8 +45,9 @@ def build_parser():
     sub = parser.add_subparsers(dest="command", required=True)
 
     p = sub.add_parser("sessions", help="upcoming sessions filled under a percentage")
-    p.add_argument("--below", type=float, required=True, metavar="PCT",
-                   help="fill rate threshold, in percent")
+    p.add_argument(
+        "--below", type=float, required=True, metavar="PCT", help="fill rate threshold, in percent"
+    )
 
     p = sub.add_parser("trainers", help="trainers teaching on a given day")
     p.add_argument("--date", type=day_arg, required=True, metavar="YYYY-MM-DD")
