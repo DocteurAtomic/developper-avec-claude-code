@@ -11,6 +11,8 @@ as `uv run pachaplan ...`; global options (`--db`, `--today`) go before the subc
   (40 passed, 8 skipped; seen on 2026-11-02 with an older suite: eight tests announced,
   seven passed, one skipped). Report the
   passed and skipped counts, never "all tests pass" alone.
+- CI runs `uv run pytest -q --fail-on-skip` with `PACHAPLAN_DB` set: a skipped test
+  fails the build. The option is defined in `tests/conftest.py`.
 - Lint: `uv run ruff check`. It exits 0 and CI fails the build on any lint error.
   Fix new errors in the code; do not add `noqa` or ignore rules in `pyproject.toml`.
 

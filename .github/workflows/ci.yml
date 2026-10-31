@@ -17,6 +17,11 @@ jobs:
       - name: Install Python and the dependencies
         run: uv sync
       - name: Tests
-        run: uv run pytest -q
+        # The real database is in the repository; setting the variable runs the
+        # integration and characterization tests instead of skipping them, and
+        # --fail-on-skip fails the build if any test is still skipped.
+        env:
+          PACHAPLAN_DB: data/pachaplan.sqlite
+        run: uv run pytest -q --fail-on-skip
       - name: Lint
         run: uv run ruff check
