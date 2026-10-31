@@ -35,11 +35,12 @@ def connect(path, readonly=True):
     return conn
 
 
-def query(conn, sql):
-    """Run a query and return the rows as a list of sqlite3.Row."""
-    return conn.execute(sql).fetchall()
+def query(conn, sql, params=()):
+    """Run a query, values bound to its ? placeholders; return the rows as sqlite3.Row."""
+    return conn.execute(sql, params).fetchall()
 
 
-def scalar(conn, sql):
-    row = conn.execute(sql).fetchone()
+def scalar(conn, sql, params=()):
+    """Run a query, values bound to its ? placeholders; return the first column of the first row."""
+    row = conn.execute(sql, params).fetchone()
     return row[0] if row else None

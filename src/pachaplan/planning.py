@@ -60,6 +60,11 @@ EXPORT_COLUMNS = [
 # ---------------------------------------------------------------------------
 
 
+def placeholders(values):
+    """The `?, ?, ...` of an IN list with one placeholder per value."""
+    return ", ".join("?" for _ in values)
+
+
 def parse_day(text):
     """Parse YYYY-MM-DD into a date. Raises ValueError on a bad value."""
     return date.fromisoformat(text)
@@ -121,14 +126,14 @@ def count_enrollments(conn, session_id):
     """Active enrollments of a session: not canceled, not on the waiting list."""
     return scalar(
         conn,
-        f"SELECT COUNT(*) FROM enrollment WHERE session_id = {session_id} "
-        f"AND cancellation_date IS NULL AND waiting_list = 0",
+        "SELECT COUNT(*) FROM enrollment WHERE session_id = ? "
+        "AND cancellation_date IS NULL AND waiting_list = 0",
+        (session_id,),
     )
 
 
 def upcoming_sessions(conn, today, horizon=HORIZON_DAYS):
     last = today + timedelta(days=horizon)
-    statuses = ", ".join(f"'{s}'" for s in ACTIVE_STATUSES)
     return query(
         conn,
         f"""
@@ -141,11 +146,12 @@ def upcoming_sessions(conn, today, horizon=HORIZON_DAYS):
         LEFT JOIN location l ON l.location_id = r.location_id
         LEFT JOIN trainer t ON t.trainer_id = s.trainer_id
         LEFT JOIN contact tc ON tc.contact_id = t.contact_id
-        WHERE s.start_date >= '{today.isoformat()}'
-          AND s.start_date <= '{last.isoformat()}'
-          AND s.status_code IN ({statuses})
+        WHERE s.start_date >= ?
+          AND s.start_date <= ?
+          AND s.status_code IN ({placeholders(ACTIVE_STATUSES)})
         ORDER BY s.start_date, s.session_id
         """,
+        (today.isoformat(), last.isoformat(), *ACTIVE_STATUSES),
     )
 
 
@@ -220,12 +226,13 @@ def print_low_fill(rows, below, today, out=None):
 def trainer_identity(conn, trainer_id):
     rows = query(
         conn,
-        f"""
+        """
         SELECT t.trainer_id, t.status, t.do_not_contact, t.arrival_date, t.departure_date,
                c.first_name, c.last_name, c.email
         FROM trainer t JOIN contact c ON c.contact_id = t.contact_id
-        WHERE t.trainer_id = {trainer_id}
+        WHERE t.trainer_id = ?
         """,
+        (trainer_id,),
     )
     return rows[0] if rows else None
 
@@ -234,14 +241,15 @@ def home_location(conn, trainer_id, day):
     """The location a trainer is attached to on a day, from the assignment table."""
     rows = query(
         conn,
-        f"""
+        """
         SELECT a.location_id, l.name, l.city
         FROM assignment a JOIN location l ON l.location_id = a.location_id
-        WHERE a.trainer_id = {trainer_id}
-          AND a.start_date <= '{day}'
-          AND (a.end_date IS NULL OR a.end_date >= '{day}')
+        WHERE a.trainer_id = ?
+          AND a.start_date <= ?
+          AND (a.end_date IS NULL OR a.end_date >= ?)
         ORDER BY a.start_date DESC
         """,
+        (trainer_id, str(day), str(day)),
     )
     return rows[0] if rows else None
 
@@ -249,7 +257,6 @@ def home_location(conn, trainer_id, day):
 def sessions_running_on(conn, iso, include_unconfirmed):
     """The sessions running on day `iso`, with their course, room and location."""
     statuses = ACTIVE_STATUSES if include_unconfirmed else ("CONFIRMED",)
-    status_list = ", ".join(f"'{s}'" for s in statuses)
 
     return query(
         conn,
@@ -263,11 +270,12 @@ def sessions_running_on(conn, iso, include_unconfirmed):
         JOIN course c ON c.course_id = s.course_id
         LEFT JOIN room r ON r.room_id = s.room_id
         LEFT JOIN location l ON l.location_id = r.location_id
-        WHERE s.start_date <= '{iso}'
-          AND date(s.start_date, '+' || (COALESCE(s.duration_days, 1) - 1) || ' days') >= '{iso}'
-          AND s.status_code IN ({status_list})
+        WHERE s.start_date <= ?
+          AND date(s.start_date, '+' || (COALESCE(s.duration_days, 1) - 1) || ' days') >= ?
+          AND s.status_code IN ({placeholders(statuses)})
         ORDER BY l.city, s.start_date, s.session_id
         """,
+        (iso, iso, *statuses),
     )
 
 
@@ -381,7 +389,9 @@ def add_planning_notes(conn, s, day_number, enrolled, line):
     """Notes for the planning team: in-house client, status, trainees, remarks."""
     if s["is_in_house"]:
         if s["company_id"] is not None:
-            client = scalar(conn, f"SELECT name FROM company WHERE company_id = {s['company_id']}")
+            client = scalar(
+                conn, "SELECT name FROM company WHERE company_id = ?", (s["company_id"],)
+            )
             line["notes"].append(f"in-house: {client}")
         else:
             line["notes"].append("in-house")
@@ -500,18 +510,18 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
     when its due date (or invoice date + payment terms) is past.
     """
     cutoff = today - timedelta(days=days)
-    types = ", ".join(f"'{t}'" for t in statuses)
     invoices = query(
         conn,
         f"""
         SELECT i.invoice_code, i.invoice_date, i.due_date, i.gross_amount, i.net_amount,
                i.reminder_level, i.reminder_date, i.session_id, i.company_id, i.contact_id
         FROM invoice i
-        WHERE i.document_type IN ({types})
+        WHERE i.document_type IN ({placeholders(statuses)})
           AND i.invoice_date IS NOT NULL
-          AND i.invoice_date <= '{cutoff.isoformat()}'
+          AND i.invoice_date <= ?
         ORDER BY i.invoice_date, i.invoice_code
         """,
+        (*statuses, cutoff.isoformat()),
     )
 
     rows = []
@@ -520,12 +530,13 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
     for inv in invoices:
         code = inv["invoice_code"]
         paid = scalar(
-            conn, f"SELECT COALESCE(SUM(amount), 0) FROM payment WHERE invoice_code = '{code}'"
+            conn, "SELECT COALESCE(SUM(amount), 0) FROM payment WHERE invoice_code = ?", (code,)
         )
         credited = scalar(
             conn,
-            f"SELECT COALESCE(SUM(gross_amount), 0) FROM invoice "
-            f"WHERE document_type = 'C' AND original_invoice_code = '{code}'",
+            "SELECT COALESCE(SUM(gross_amount), 0) FROM invoice "
+            "WHERE document_type = 'C' AND original_invoice_code = ?",
+            (code,),
         )
         # Credit notes carry negative amounts.
         balance = inv["gross_amount"] + credited - paid
@@ -542,12 +553,13 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
         # Who owes it: the company when there is one, otherwise the person.
         if inv["company_id"] is not None:
             customer = scalar(
-                conn, f"SELECT name FROM company WHERE company_id = {inv['company_id']}"
+                conn, "SELECT name FROM company WHERE company_id = ?", (inv["company_id"],)
             )
         elif inv["contact_id"] is not None:
             person = query(
                 conn,
-                f"SELECT first_name, last_name FROM contact WHERE contact_id = {inv['contact_id']}",
+                "SELECT first_name, last_name FROM contact WHERE contact_id = ?",
+                (inv["contact_id"],),
             )
             customer = full_name(person[0]["first_name"], person[0]["last_name"]) if person else "?"
         else:
@@ -556,14 +568,15 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
         # The trainees on the invoice, for the phone call.
         trainees = query(
             conn,
-            f"""
+            """
             SELECT DISTINCT c.first_name, c.last_name
             FROM invoice_line l
             JOIN enrollment e ON e.enrollment_id = l.enrollment_id
             JOIN contact c ON c.contact_id = e.contact_id
-            WHERE l.invoice_code = '{code}'
+            WHERE l.invoice_code = ?
             ORDER BY c.last_name, c.first_name
             """,
+            (code,),
         )
         names = [full_name(t["first_name"], t["last_name"]) for t in trainees]
 
@@ -571,8 +584,9 @@ def unpaid_invoices(conn, today, days, statuses=("I",)):
         if inv["session_id"] is not None:
             course = scalar(
                 conn,
-                f"SELECT c.title FROM session s JOIN course c ON c.course_id = s.course_id "
-                f"WHERE s.session_id = {inv['session_id']}",
+                "SELECT c.title FROM session s JOIN course c ON c.course_id = s.course_id "
+                "WHERE s.session_id = ?",
+                (inv["session_id"],),
             )
 
         # What to do next, from the reminders already sent and the delay.
@@ -665,7 +679,7 @@ def export_month(conn, month, out=sys.stdout):
     first, following = parse_month(month)
     lines = query(
         conn,
-        f"""
+        """
         SELECT i.invoice_code, i.invoice_date, i.document_type, i.vat_rate,
                COALESCE(co.name, ct.first_name || ' ' || ct.last_name, '') AS customer,
                l.line_number, l.line_type_code, l.label, l.quantity, l.unit_price, l.net_amount
@@ -673,9 +687,10 @@ def export_month(conn, month, out=sys.stdout):
         JOIN invoice_line l ON l.invoice_code = i.invoice_code
         LEFT JOIN company co ON co.company_id = i.company_id
         LEFT JOIN contact ct ON ct.contact_id = i.contact_id
-        WHERE i.invoice_date >= '{first.isoformat()}' AND i.invoice_date < '{following.isoformat()}'
+        WHERE i.invoice_date >= ? AND i.invoice_date < ?
         ORDER BY i.invoice_date, i.invoice_code, l.line_number
         """,
+        (first.isoformat(), following.isoformat()),
     )
     writer = csv.writer(out)
     writer.writerow(EXPORT_COLUMNS)
